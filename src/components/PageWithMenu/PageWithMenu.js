@@ -64,7 +64,7 @@ const PageWithMenu = ({ children, subPages }) => {
                             <PanelListItems page={page} changePage={(page) => changePage(page)} key={page.name + index} />
                         ))}
                     </List>
-                </Box>a
+                </Box>
             </Drawer>
             <Box component="main" sx={{ display: "flex", flexDirection: "column", width: "100%" }} p={2}>
                 <Typography variant="h4" mb={1}>
