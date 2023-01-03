@@ -1,6 +1,6 @@
 import React from 'react';
 import {Bookmarks, BookmarksOutlined, People, LibraryBooks} from "@mui/icons-material";
-import AdminUsers from "../../components/AdminPanel/AdminUsers";
+import AdminUsers from "../../components/AdminPanel/AdminUsers/AdminUsers";
 import AdminBooks from "../../components/AdminPanel/AdminBooks";
 import AdminReservations from "../../components/AdminPanel/AdminReservations";
 import PageWithMenu from "../../components/PageWithMenu/PageWithMenu";
