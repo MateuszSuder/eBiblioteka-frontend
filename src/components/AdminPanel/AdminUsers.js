@@ -30,11 +30,11 @@ const RoleChip = ({role}) => {
     switch(role) {
         case "USER":
             return (
-                <Chip label="user" color="success" />
+                <Chip label="użytkownik" color="success" />
             )
-        case "EMPLOYEE":
+        case "LIBRARIAN":
             return (
-                <Chip label="pracownik" color="primary" />
+                <Chip label="bibliotekarz" color="primary" />
             )
         case "ADMIN":
             return (
@@ -74,7 +74,7 @@ const AdminUsersTableRow = ({user}) => {
 
 const AdminUsers = () => {
     return (
-        <Grid maxWidth="xl" disableGutters>
+        <Grid maxWidth="xl">
             <TableContainer component={Paper}>
                 <Table aria-label="Użytkownicy">
                     <TableBody>

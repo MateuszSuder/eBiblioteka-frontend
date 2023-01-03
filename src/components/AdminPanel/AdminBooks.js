@@ -1,11 +1,11 @@
 import React from 'react';
 
-const AdminIssues = () => {
+const AdminBooks = () => {
     return (
         <div>
-            Issues
+            Books
         </div>
     );
 };
 
-export default AdminIssues;
+export default AdminBooks;

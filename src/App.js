@@ -1,13 +1,13 @@
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import Layout from "./components/Layout/Layout";
-import RoomList from "./views/RoomList/RoomList";
+import BookList from "./views/BookList/BookList";
 import Profile from "./views/Profile";
 import Login from "./views/Login/Login";
 import React from "react";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import Register from "./views/Login/Register";
-import Room from "./views/Room/Room";
+import Book from "./views/Book/Book";
 import AdminPanel from "./views/AdminPanel/AdminPanel";
 
 function App() {
@@ -16,8 +16,8 @@ function App() {
           <BrowserRouter>
               <Routes>
                   <Route element={<Layout container={true} />}>
-                      <Route path="/" element={<RoomList />}/>
-                      <Route path="/room/:roomId" element={<Room />}/>
+                      <Route path="/" element={<BookList />}/>
+                      <Route path="/book/:bookId" element={<Book />}/>
                   </Route>
                   <Route element={<Layout container={false} />}>
                       <Route path="/profile" element={<Profile />}/>

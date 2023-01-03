@@ -11,7 +11,7 @@ const users = [
         email: "email@2.pl",
         name: "name2",
         lastName: "lastname2",
-        role: "EMPLOYEE"
+        role: "LIBRARIAN"
     },
     {
         _id: 3,
