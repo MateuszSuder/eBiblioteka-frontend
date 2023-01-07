@@ -10,7 +10,6 @@ import {
     Tooltip,
     Typography
 } from "@mui/material";
-import RoomServiceIcon from '@mui/icons-material/RoomService';
 import theme from "../theme/theme";
 import {Link, Outlet} from "react-router-dom";
 

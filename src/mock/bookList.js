@@ -2,7 +2,7 @@ const bookList = {
     books: [
         {
             _id: 1,
-            "title": "Kali Linux Penetration Testing Bible",
+            "title": "Kali Linux Penetration",
             "author": "Gus Khawaja Gus Khawaja Gus KhawajaGus KhawajaGus KhawajaGus KhawajaGus KhawajaGus Khawaja",
             "category": "Information technology",
             "publisher": "ASDASDdasdasdasADSDA asdADAS",

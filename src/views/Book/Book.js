@@ -4,12 +4,9 @@ import {
     Button,
     Card,
     Divider,
-    FormControl,
     Grid,
-    IconButton,
     Skeleton,
     Stack,
-    TextField,
     Typography
 } from "@mui/material";
 import bookList from "../../mock/bookList";
@@ -20,7 +17,7 @@ const BookRow = ({label, value, divider = true}) => {
     return (
         <>
             <Grid item container xs={12} justifyContent="center" gap={2}>
-                <Grid item xs={5} align="right">
+                <Grid item container xs={5} justifyContent="flex-end" alignItems="center">
                     <Typography fontWeight="bold">
                         {label}
                     </Typography>
@@ -70,7 +67,7 @@ const Book = () => {
                 <Divider/>
             </Grid>
             <Card elevation={4}>
-                <Grid item container my={2}>
+                <Grid item container my={2} gap={1}>
                     <BookRow value={book.isbn} label="ISBN" />
                     <BookRow value={book.author} label="Autor" />
                     <BookRow value={book.publisher} label="Wydawnictwo" />
