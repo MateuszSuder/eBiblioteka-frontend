@@ -2,7 +2,7 @@ import { People, BookmarksOutlined, Bookmarks } from "@mui/icons-material";
 import React from "react";
 import Borrowings from "../components/Profile/Borrowings";
 import UserReservations from "../components/Profile/UserReservations";
-import UserInfo from "./../components/Profile/UserInfo";
+import UserInfo from "../components/Profile/UserInfo/UserInfo";
 import PageWithMenu from "../components/PageWithMenu/PageWithMenu";
 const subPages = [
     {
