@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {createContext, useState} from 'react';
 import {
     Chip,
     Grid,
@@ -27,8 +27,6 @@ const AdminUsersIcon = ({Icon, tooltip}) => {
         </Grid>
     )
 }
-
-
 
 const AdminUsersTableRow = ({user}) => {
     const [userId, setUserId] = useState(null);

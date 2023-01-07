@@ -8,6 +8,7 @@ import BORROWING_STATUS from "../../../enums/BORROWING_STATUS";
 import TypographyLink from "../../TypographyLink";
 import theme from "../../theme/theme";
 import FullWidthButton from "../../FullWidthButton";
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 
 const BorrowingStatusChip = ({status}) => {
     switch (status) {
@@ -42,10 +43,17 @@ const AdminUserBorrowing = ({item: borrowing}) => {
                 aria-controls="panel1a-content"
                 id="panel1a-header"
             >
-                <Grid container>
-                    <Grid item xs={8}>
+                <Grid container justifyContent="space-between">
+                    <Grid item xs={7}>
                         <Typography>{title}</Typography>
                     </Grid>
+                    {
+                        borrowing.renewalRequest && (
+                            <Grid item xs={1}>
+                                <PriorityHighIcon color="error" />
+                            </Grid>
+                        )
+                    }
                     <Grid item xs={4} container alignItems="center" justifyContent="center">
                         <BorrowingStatusChip status={borrowing.status}/>
                     </Grid>
@@ -69,6 +77,16 @@ const AdminUserBorrowing = ({item: borrowing}) => {
                             </Typography>
                         </Grid>
                     }
+                    <Grid item>
+                        <Typography>
+                            Przedłużano wcześniej: { borrowing.renewedBefore ? "Tak" : "Nie" }
+                        </Typography>
+                    </Grid>
+                    <Grid item>
+                        <Typography color={borrowing.renewalRequest ? "error" : "inherit"}>
+                            Prośba o przedłużenie: { borrowing.renewalRequest ? "Tak" : "Nie" }
+                        </Typography>
+                    </Grid>
                     {
                         borrowing.status !== BORROWING_STATUS.RETURNED && (
                             <Grid item container mt={3} justifyContent="space-between" px={2}>
