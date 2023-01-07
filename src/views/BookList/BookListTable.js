@@ -40,13 +40,8 @@ const BookTableRow = ({book, selectBook}) => {
     )
 }
 
-const BookListTable = () => {
+const BookListTable = ({onSelect}) => {
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-
-    const selectBook = (bookId) => {
-        navigate(`book/${bookId}`);
-    }
 
     if(loading)
         return (
@@ -63,7 +58,7 @@ const BookListTable = () => {
                 <Table aria-label="Lista książek" sx={{ tableLayout: "fixed" }}>
                     <TableBody>
                         {bookList.books.map(book => (
-                            <BookTableRow key={book._id} book={book} selectBook={selectBook} />
+                            <BookTableRow key={book._id} book={book} selectBook={onSelect} />
                         ))}
                     </TableBody>
                 </Table>

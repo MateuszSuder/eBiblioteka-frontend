@@ -1,9 +1,15 @@
 import React from 'react';
 import {Divider, Grid, Typography} from "@mui/material";
-import BookListTable from "./BookListTable";
-import BookListOptions from "./BookListOptions";
+import BookListWithSearch from "../../components/BookListWithSearch/BookListWithSearch";
+import {useNavigate} from "react-router-dom";
 
 const BookList = () => {
+    const navigate = useNavigate();
+
+    const selectBook = (bookId) => {
+        navigate(`book/${bookId}`);
+    }
+
     return (
         <>
             <Grid container>
@@ -13,10 +19,7 @@ const BookList = () => {
                     </Typography>
                     <Divider />
                 </Grid>
-                <Grid item xs={12}>
-                    <BookListOptions />
-                    <BookListTable />
-                </Grid>
+                <BookListWithSearch onSelect={selectBook} />
             </Grid>
         </>
     );

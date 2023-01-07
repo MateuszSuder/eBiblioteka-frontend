@@ -19,12 +19,12 @@ html, body {
 *::-webkit-scrollbar-thumb {
     background-color: #bdbdbd;
     border-radius: 20px;
-    border: 0px none #ffffff;
+    border: 0 none #ffffff;
 }
 
 a {
     text-decoration: none !important;
-    color: inherit !important;
+    color: inherit;
     cursor: pointer;
 }
 
