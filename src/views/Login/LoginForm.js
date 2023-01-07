@@ -22,7 +22,6 @@ const LoginForm = () => {
             <TextField
                 id="user-email"
                 label="Email"
-                placeholder="jan.nowak@gmail.com"
                 variant="standard"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

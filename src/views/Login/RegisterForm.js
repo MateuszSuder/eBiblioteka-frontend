@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { Button, Divider, Grid, TextField, Typography } from "@mui/material";
 import theme from "../../components/theme/theme";
 import { Link } from "react-router-dom";
-
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 const RegisterForm = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [dateOfBirth, setDateOfBirth] = useState("");
-    const [phoneNumber, setphoneNumber] = useState("");
+    const [dateOfBirth, setDateOfBirth] = useState(null);
+
     const [address, setAddress] = useState({
         postal: "",
         city: "",
@@ -17,7 +17,6 @@ const RegisterForm = () => {
         houseNumber: "",
         apartmentNumber: "",
     });
-    const date = new Date().toISOString().substring(0, 10);
     const submit = () => {
         console.log(email, password, firstName, lastName, address);
     };
@@ -51,27 +50,24 @@ const RegisterForm = () => {
                     />
                 </Grid>
                 <Grid container item xs={6} direction="column">
-                    <TextField
-                        required
-                        id="user-dateOfBirth"
+                    <DatePicker
+                        disableFuture
                         label="Data urodzenia"
-                        placeholder={date}
-                        variant="standard"
                         value={dateOfBirth}
-                        onChange={(e) => setDateOfBirth(e.target.value)}
+                        onChange={(dateOfBirth) => {
+                            setDateOfBirth(dateOfBirth);
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                required
+                                variant="standard"
+                                {...params}
+                            />
+                        )}
                     />
                 </Grid>
+
                 <Grid container item xs={6} direction="column">
-                    <TextField
-                        required
-                        id="user-phoneNumber"
-                        label="Numer telefonu"
-                        variant="standard"
-                        value={phoneNumber}
-                        onChange={(e) => setphoneNumber(e.target.value)}
-                    />
-                </Grid>
-                <Grid container item xs={12} direction="column">
                     <TextField
                         required
                         id="user-email"
@@ -107,14 +103,12 @@ const RegisterForm = () => {
                     />
                 </Grid>
             </Grid>
-            <Typography
-                variant="caption"
-                mt={2}
-                color={theme.palette.grey["600"]}
-            >
-                Adres
-            </Typography>
-            <Divider />
+            <Grid item xs={8} mt={5}>
+                <Typography variant="caption" color={theme.palette.grey["600"]}>
+                    Adres
+                </Typography>
+                <Divider />
+            </Grid>
             <Grid container spacing={2}>
                 <Grid container item xs={4} direction="column">
                     <TextField
