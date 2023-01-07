@@ -21,7 +21,7 @@ const PanelListItems = ({page, changePage}) => {
         <ListItem key={page.name} disablePadding>
             <ListItemButton onClick={() => changePage(page)}>
                 <ListItemButton>
-                    <ListItemIcon>
+                    <ListItemIcon sx={{ color: theme.palette.primary.light }}>
                         {page.icon}
                     </ListItemIcon>
                 </ListItemButton>

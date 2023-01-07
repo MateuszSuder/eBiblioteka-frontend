@@ -1,0 +1,7 @@
+const BORROWING_STATUS = {
+    BORROWED: "BORROWED",
+    OVERDUE: "OVERDUE",
+    RETURNED: "RETURNED"
+}
+
+export default BORROWING_STATUS;
