@@ -6,21 +6,52 @@ import ColorAvatar from "../../../ColorAvatar";
 import USER_ROLES from "../../../../enums/USER_ROLES";
 import FullWidthButton from "../../../FullWidthButton";
 
-const AdminUserDelete = ({userId, close}) => {
+const AdminUserDelete = ({user, close}) => {
+    const deleteUser = () => {
+        console.log(`${user._id} delete`);
+        close();
+    }
+
     return (
-        <>Delete</>
+        <Grid item container xs={12} md={8} justifyContent="space-between">
+            <Grid item xs={5}>
+                <FullWidthButton variant="outlined" onClick={close}>
+                    Anuluj
+                </FullWidthButton>
+            </Grid>
+            <Grid item xs={5}>
+                <FullWidthButton variant="contained" color="error" onClick={deleteUser}>
+                    Usuń
+                </FullWidthButton>
+            </Grid>
+        </Grid>
     )
 }
 
-const AdminUserBlock = ({userId, close}) => {
+const AdminUserBlock = ({user, close}) => {
+    const blockUser = () => {
+        console.log(`${user._id} block`);
+        close();
+    }
+
     return (
-        <>Block</>
+        <Grid item container xs={12} md={8} justifyContent="space-between">
+            <Grid item xs={5}>
+                <FullWidthButton variant="outlined" onClick={close}>
+                    Anuluj
+                </FullWidthButton>
+            </Grid>
+            <Grid item xs={5}>
+                <FullWidthButton variant="contained" color="error" onClick={blockUser}>
+                    Zablokuj
+                </FullWidthButton>
+            </Grid>
+        </Grid>
     )
 }
 
-const AdminUserModify = ({userId, close}) => {
+const AdminUserModify = ({user, close}) => {
     const [role, setRole] = useState("");
-    const user = useFindUser(userId);
 
     useEffect(() => {
         if(user) {
@@ -30,30 +61,18 @@ const AdminUserModify = ({userId, close}) => {
         return () => setRole(null);
     }, [user])
 
-    if(!user) return (
-        <></>
-    )
-
     if(!role) return (
         <></>
     )
 
     const saveUser = () => {
-        if(user.role !== role) console.log(`${userId}: ${user.role} -> ${role}`);
+        if(user.role !== role) console.log(`${user._id}: ${user.role} -> ${role}`);
         else console.log("No changes");
         close();
     }
 
     return (
-        <Grid container justifyContent="center" gap={2}>
-            <Grid item container justifyContent="center" xs={12}>
-                <ColorAvatar text={`${user.name} ${user.lastName}`} />
-            </Grid>
-            <Grid item xs={12}>
-                <Typography align="center" variant="h6">
-                    {`${user.name} ${user.lastName}`}
-                </Typography>
-            </Grid>
+        <>
             <Grid item xs={12} md={8}>
                 <FormControl fullWidth>
                     <InputLabel id="user-role-label">
@@ -68,7 +87,7 @@ const AdminUserModify = ({userId, close}) => {
                     >
                         {
                             Object.entries(USER_ROLES).map(([value, label]) => (
-                                <MenuItem value={value} key={`${userId}-role-${value}`}>{label[0].toUpperCase() + label.slice(1)}</MenuItem>
+                                <MenuItem value={value} key={`${user._id}-role-${value}`}>{label[0].toUpperCase() + label.slice(1)}</MenuItem>
                             ))
                         }
                     </Select>
@@ -86,7 +105,7 @@ const AdminUserModify = ({userId, close}) => {
                     </FullWidthButton>
                 </Grid>
             </Grid>
-        </Grid>
+        </>
     )
 }
 
@@ -99,6 +118,16 @@ const AdminUserModify = ({userId, close}) => {
  * @constructor
  */
 const AdminUserAction = ({open, setOpen, userId, action}) => {
+    const user = useFindUser(userId);
+
+    if(!userId) return (
+        <></>
+    )
+
+    if(!user) return (
+        <></>
+    )
+
     const close = () => setOpen(false);
     const Component = (() => {
         switch (action) {
@@ -115,13 +144,20 @@ const AdminUserAction = ({open, setOpen, userId, action}) => {
         }
     })()
 
-    if(!userId) return (
-        <></>
-    )
-
     return (
         <CustomModal open={open} setOpen={setOpen}>
-            <Component userId={userId} close={close} />
+            <Grid container justifyContent="center" gap={2}>
+                <Grid item container justifyContent="center" xs={12}>
+                    <ColorAvatar text={`${user.name} ${user.lastName}`} />
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography align="center" variant="h6">
+                        {`${user.name} ${user.lastName}`}
+                    </Typography>
+                </Grid>
+                <Component user={user} close={close} />
+            </Grid>
+
         </CustomModal>
     )
 };

@@ -65,8 +65,8 @@ const AdminUsersTableRow = ({user}) => {
                 <TableCell width="10%">
                     <Grid container alignItems="center">
                         <AdminUsersIcon Icon={ManageAccountsIcon} tooltip="Zmień rolę użytkownika" onClick={() => openActionModal("MODIFY")} />
-                        <AdminUsersIcon Icon={BlockIcon} tooltip="Zablokuj użytkownika"/>
-                        <AdminUsersIcon Icon={NoAccountsIcon} tooltip="Usuń użytkownika"/>
+                        <AdminUsersIcon Icon={BlockIcon} tooltip="Zablokuj użytkownika" onClick={() => openActionModal("BLOCK")}/>
+                        <AdminUsersIcon Icon={NoAccountsIcon} tooltip="Usuń użytkownika" onClick={() => openActionModal("DELETE")}/>
                     </Grid>
                 </TableCell>
             </TableRow>
