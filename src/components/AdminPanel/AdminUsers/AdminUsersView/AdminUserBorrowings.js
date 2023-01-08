@@ -18,11 +18,11 @@ const BorrowingStatusChip = ({status}) => {
             )
         case BORROWING_STATUS.OVERDUE:
             return (
-                <Chip label="anulowano" color="error"/>
+                <Chip label="zaległa" color="error"/>
             )
         case BORROWING_STATUS.RETURNED:
             return (
-                <Chip label="wypożyczono" color="success"/>
+                <Chip label="zwrócono" color="success"/>
             )
         default:
             return (<></>)

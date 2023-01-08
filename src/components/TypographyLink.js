@@ -6,7 +6,7 @@ const TypographyLink = styled(Typography)`
     cursor: pointer;
     transition: all 0.15s;
     &:hover {
-        color: ${theme.palette.primary.main}
+        color: ${theme.palette.primary.dark}
     }
   `}
 `

@@ -17,7 +17,7 @@ const AdminUserView = ({open, setOpen, id}) => {
     )
 
     return (
-        <CustomModal open={open} setOpen={setOpen}>
+        <CustomModal open={open} setOpen={setOpen} customStyle={{width: "60vw"}}>
             <Grid container alignItems="center" flexDirection="column" gap={1}>
                 <Grid item>
                     <ColorAvatar text={`${user.name} ${user.lastName}`}/>
