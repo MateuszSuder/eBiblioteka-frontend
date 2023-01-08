@@ -157,7 +157,6 @@ const AdminUserAction = ({open, setOpen, userId, action}) => {
                 </Grid>
                 <Component user={user} close={close} />
             </Grid>
-
         </CustomModal>
     )
 };

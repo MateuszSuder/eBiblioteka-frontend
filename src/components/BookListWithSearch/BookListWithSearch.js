@@ -1,7 +1,7 @@
 import React from 'react';
 import {Grid} from "@mui/material";
-import BookListOptions from "../BookList/BookListOptions";
-import BookListTable from "../BookList/BookListTable";
+import BookListOptions from "./BookListOptions";
+import BookListTable from "./BookListTable";
 
 const BookListWithSearch = ({inputWidth = 2, includeCategory = true, onSelect, children}) => {
     return (

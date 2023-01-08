@@ -1,27 +1,8 @@
 import React, {createContext, useState} from 'react';
-import {
-    Paper,
-    Skeleton,
-    Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableRow,
-    Tooltip,
-    Typography
-} from "@mui/material";
+import {Paper, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableRow} from "@mui/material";
 import bookList from "../../mock/bookList";
+import CustomTooltip from "../CustomTooltip";
 
-const BookTooltip = ({content}) => {
-    return (
-        <Tooltip title={content} followCursor>
-            <Typography noWrap>
-                {content}
-            </Typography>
-        </Tooltip>
-    )
-}
 
 export const BookContext = createContext({});
 
@@ -29,13 +10,13 @@ const BookTableRow = ({book, selectBook, children}) => {
     return (
         <TableRow hover onClick={() => selectBook(book._id)} sx={{cursor: "pointer"}}>
             <TableCell width="50%">
-                <BookTooltip content={book.title} />
+                <CustomTooltip content={book.title} />
             </TableCell>
             <TableCell width="25%">
-                <BookTooltip content={book.category} />
+                <CustomTooltip content={book.category} />
             </TableCell>
             <TableCell width="25%">
-                <BookTooltip content={book.author} />
+                <CustomTooltip content={book.author} />
             </TableCell>
             <BookContext.Provider value={book}>
                 {children}

@@ -1,14 +1,4 @@
-import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-    Chip,
-    Grid,
-    Link,
-    styled,
-    Table, TableBody, TableCell, TableRow,
-    Typography
-} from "@mui/material";
+import {Accordion, AccordionDetails, AccordionSummary, Grid, Link, Typography} from "@mui/material";
 import bookList from "../../../../mock/bookList";
 import {ExpandMore} from "@mui/icons-material";
 import theme from "../../../theme/theme";
@@ -17,29 +7,7 @@ import React, {useEffect, useState} from "react";
 import TypographyLink from "../../../TypographyLink";
 import AdminUserAccordion from "./AdminUserAccordion";
 import userReservations from "../../../../mock/userReservations";
-
-const ReservationStatusChip = ({status}) => {
-    switch (status) {
-        case "RESERVED":
-            return (
-                <Chip label="zarezerwowano" color="primary"/>
-            )
-        case "CANCELLED":
-            return (
-                <Chip label="anulowano" color="warning"/>
-            )
-        case "BORROWED":
-            return (
-                <Chip label="wypożyczono" color="success"/>
-            )
-        case "EXPIRED":
-            return (
-                <Chip label="wygasło" color="error"/>
-            )
-        default:
-            return (<></>)
-    }
-}
+import ReservationStatusChip from "../../ReservationStatusChip";
 
 const AdminUserReservation = ({item: reservation}) => {
     const book = bookList.books.find(book => book._id === reservation.bookId);

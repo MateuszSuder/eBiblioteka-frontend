@@ -2,7 +2,7 @@ import React from 'react';
 import {Bookmarks, BookmarksOutlined, LibraryBooks, People} from "@mui/icons-material";
 import AdminUsers from "../../components/AdminPanel/AdminUsers/AdminUsers";
 import AdminBooks from "../../components/AdminPanel/AdminBooks/AdminBooks";
-import AdminReservations from "../../components/AdminPanel/AdminReservations";
+import AdminReservations from "../../components/AdminPanel/AdminReservations/AdminReservations";
 import PageWithMenu from "../../components/PageWithMenu/PageWithMenu";
 import AdminBorrowings from "../../components/AdminPanel/AdminBorrowings";
 
