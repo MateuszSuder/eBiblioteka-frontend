@@ -1,6 +1,5 @@
-import React, {createContext, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, Grid, Typography} from "@mui/material";
-import users from "../../../../mock/users";
 import RoleChip from "../RoleChip";
 import ColorAvatar from "../../../ColorAvatar";
 import AdminUserReservations from "./AdminUserReservation";

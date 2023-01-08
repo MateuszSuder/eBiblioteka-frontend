@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Grid, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Tooltip, Typography} from "@mui/material";
 import users from "../../../mock/users";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
@@ -19,7 +19,7 @@ const AdminUsersIcon = ({Icon, tooltip, onClick}) => {
 }
 
 const AdminUsersTableRow = ({user}) => {
-    const [userId, setUserId] = useState(null);
+    const [userId, setUserId] = useState();
     const [openUser, setOpenUser] = useState(false);
     const [openAction, setOpenAction] = useState(false);
     const [action, setAction] = useState(null);
