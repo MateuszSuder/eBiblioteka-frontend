@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import AdminUserAccordion from "./AdminUserAccordion";
-import userBorrowings from "../../../mock/userBorrowings";
+import userBorrowings from "../../../../mock/userBorrowings";
 import {Accordion, AccordionDetails, AccordionSummary, Chip, Grid, Link, Typography} from "@mui/material";
 import {ExpandMore} from "@mui/icons-material";
-import bookList from "../../../mock/bookList";
-import BORROWING_STATUS from "../../../enums/BORROWING_STATUS";
-import TypographyLink from "../../TypographyLink";
-import theme from "../../theme/theme";
-import FullWidthButton from "../../FullWidthButton";
+import bookList from "../../../../mock/bookList";
+import BORROWING_STATUS from "../../../../enums/BORROWING_STATUS";
+import TypographyLink from "../../../TypographyLink";
+import theme from "../../../theme/theme";
+import FullWidthButton from "../../../FullWidthButton";
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 
 const BorrowingStatusChip = ({status}) => {

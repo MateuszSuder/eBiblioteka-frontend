@@ -9,14 +9,14 @@ import {
     Table, TableBody, TableCell, TableRow,
     Typography
 } from "@mui/material";
-import bookList from "../../../mock/bookList";
+import bookList from "../../../../mock/bookList";
 import {ExpandMore} from "@mui/icons-material";
-import theme from "../../theme/theme";
-import FullWidthButton from "../../FullWidthButton";
+import theme from "../../../theme/theme";
+import FullWidthButton from "../../../FullWidthButton";
 import React, {useEffect, useState} from "react";
-import TypographyLink from "../../TypographyLink";
+import TypographyLink from "../../../TypographyLink";
 import AdminUserAccordion from "./AdminUserAccordion";
-import userReservations from "../../../mock/userReservations";
+import userReservations from "../../../../mock/userReservations";
 
 const ReservationStatusChip = ({status}) => {
     switch (status) {

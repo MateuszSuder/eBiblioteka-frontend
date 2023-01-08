@@ -1,7 +1,7 @@
 import React from 'react';
 import {Grid} from "@mui/material";
-import BookListWithSearch from "../../BookListWithSearch/BookListWithSearch";
-import CustomModal from "../../CustomModal";
+import BookListWithSearch from "../../../BookListWithSearch/BookListWithSearch";
+import CustomModal from "../../../CustomModal";
 
 
 const AdminUserAddBorrowing = ({open, setOpen, user}) => {

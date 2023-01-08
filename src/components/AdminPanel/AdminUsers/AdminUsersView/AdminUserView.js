@@ -1,21 +1,17 @@
 import React, {createContext, useEffect, useState} from 'react';
 import {Button, Grid, Typography} from "@mui/material";
-import users from "../../../mock/users";
-import RoleChip from "./RoleChip";
-import ColorAvatar from "../../ColorAvatar";
+import users from "../../../../mock/users";
+import RoleChip from "../RoleChip";
+import ColorAvatar from "../../../ColorAvatar";
 import AdminUserReservations from "./AdminUserReservation";
 import AdminUserBorrowings from "./AdminUserBorrowings";
 import AdminUserAddBorrowing from "./AdminUserAddBorrowing";
-import CustomModal from "../../CustomModal";
+import CustomModal from "../../../CustomModal";
+import useFindUser from "../../../../hooks/useFindUser";
 
 const AdminUserView = ({open, setOpen, id}) => {
-    const [user, setUser] = useState(users.find(user => user._id === id));
     const [openAddBorrowing, setOpenAddBorrowing] = useState(false);
-
-    useEffect(() => {
-        // todo get user from api
-        setUser(users.find(user => user._id === id));
-    }, [id]);
+    const user = useFindUser(id)
 
     if (!user) return (
         <></>

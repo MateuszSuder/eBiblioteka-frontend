@@ -1,7 +1,7 @@
 import React from 'react';
 import {Accordion, AccordionDetails, AccordionSummary, Typography} from "@mui/material";
 import {ExpandMore} from "@mui/icons-material";
-import theme from "../../theme/theme";
+import theme from "../../../theme/theme";
 
 const AdminUserAccordion = ({ListComponent, list, title, listEmptyMessage}) => {
     if(!list) return (
