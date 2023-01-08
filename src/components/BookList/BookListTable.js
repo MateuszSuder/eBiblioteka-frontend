@@ -1,6 +1,5 @@
-import React, {useState} from 'react';
+import React, {createContext, useState} from 'react';
 import {
-    Grid,
     Paper,
     Skeleton,
     Stack,
@@ -8,11 +7,11 @@ import {
     TableBody,
     TableCell,
     TableContainer,
-    TableRow, Tooltip,
+    TableRow,
+    Tooltip,
     Typography
 } from "@mui/material";
 import bookList from "../../mock/bookList";
-import {useNavigate} from "react-router-dom";
 
 const BookTooltip = ({content}) => {
     return (
@@ -24,7 +23,9 @@ const BookTooltip = ({content}) => {
     )
 }
 
-const BookTableRow = ({book, selectBook}) => {
+export const BookContext = createContext({});
+
+const BookTableRow = ({book, selectBook, children}) => {
     return (
         <TableRow hover onClick={() => selectBook(book._id)} sx={{cursor: "pointer"}}>
             <TableCell width="50%">
@@ -36,11 +37,14 @@ const BookTableRow = ({book, selectBook}) => {
             <TableCell width="25%">
                 <BookTooltip content={book.author} />
             </TableCell>
+            <BookContext.Provider value={book}>
+                {children}
+            </BookContext.Provider>
         </TableRow>
     )
 }
 
-const BookListTable = ({onSelect}) => {
+const BookListTable = ({onSelect, children}) => {
     const [loading, setLoading] = useState(false);
 
     if(loading)
@@ -58,7 +62,9 @@ const BookListTable = ({onSelect}) => {
                 <Table aria-label="Lista książek" sx={{ tableLayout: "fixed" }}>
                     <TableBody>
                         {bookList.books.map(book => (
-                            <BookTableRow key={book._id} book={book} selectBook={onSelect} />
+                            <BookTableRow key={book._id} book={book} selectBook={onSelect}>
+                                {children}
+                            </BookTableRow>
                         ))}
                     </TableBody>
                 </Table>
