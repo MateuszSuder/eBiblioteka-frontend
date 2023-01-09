@@ -4,7 +4,7 @@ import AdminUsers from "../../components/AdminPanel/AdminUsers/AdminUsers";
 import AdminBooks from "../../components/AdminPanel/AdminBooks/AdminBooks";
 import AdminReservations from "../../components/AdminPanel/AdminReservations/AdminReservations";
 import PageWithMenu from "../../components/PageWithMenu/PageWithMenu";
-import AdminBorrowings from "../../components/AdminPanel/AdminBorrowings";
+import AdminBorrowings from "../../components/AdminPanel/AdminBorrowings/AdminBorrowings";
 
 const subPages = [
     {name: "Użytkownicy", path: "users", icon: <People/>, component: AdminUsers},
