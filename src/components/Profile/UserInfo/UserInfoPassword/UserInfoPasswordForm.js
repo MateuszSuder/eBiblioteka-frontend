@@ -1,27 +1,27 @@
-import React, {useState} from 'react';
-import {Button, Grid, Typography} from "@mui/material";
+import React, { useState } from "react";
+import { Button, Grid } from "@mui/material";
 import UserInfoPasswordInput from "./UserInfoPasswordInput";
 
-const UserInfoPasswordForm = ({setChangePassword}) => {
+const UserInfoPasswordForm = ({ setChangePassword }) => {
     const [password, setPassword] = useState({
         actualPassword: "",
         newPassword: "",
-        newPasswordRepeat: ""
-    })
+        newPasswordRepeat: "",
+    });
 
     const [errors, setErrors] = useState({
         actualPassword: false,
         newPassword: false,
-        newPasswordRepeat: false
-    })
+        newPasswordRepeat: false,
+    });
 
     const handleChange = (e) => {
         const value = e.target.value;
         setPassword({
             ...password,
-            [e.target.id]: value
-        })
-    }
+            [e.target.id]: value,
+        });
+    };
 
     const validate = () => {
         let failed = false;
@@ -29,44 +29,44 @@ const UserInfoPasswordForm = ({setChangePassword}) => {
         setErrors({
             actualPassword: false,
             newPassword: false,
-            newPasswordRepeat: false
-        })
+            newPasswordRepeat: false,
+        });
 
-        for(const [key, value] of Object.entries(password)){
-            if(!value) {
+        for (const [key, value] of Object.entries(password)) {
+            if (!value) {
                 failed = true;
-                setErrors(prev => ({...prev, [key]: "Uzupełnij pole"}))
+                setErrors((prev) => ({ ...prev, [key]: "Uzupełnij pole" }));
             }
         }
 
-        if(password.newPassword !== password.newPasswordRepeat) {
-            setErrors(prev => ({
+        if (password.newPassword !== password.newPasswordRepeat) {
+            setErrors((prev) => ({
                 ...prev,
                 newPassword: "Hasła nie zgadzają się",
-                newPasswordRepeat: "Hasła nie zgadzają się"
-            }))
+                newPasswordRepeat: "Hasła nie zgadzają się",
+            }));
             return failed;
         }
 
-        if(password.newPassword.length < 8) {
-            setErrors(prev => ({
+        if (password.newPassword.length < 8) {
+            setErrors((prev) => ({
                 ...prev,
                 newPassword: "Hasło musi mieć przynajmniej 8 znaków",
-                newPasswordRepeat: "Hasło musi mieć przynajmniej 8 znaków"
-            }))
+                newPasswordRepeat: "Hasło musi mieć przynajmniej 8 znaków",
+            }));
 
             failed = true;
         }
 
         return failed;
-    }
+    };
 
     const submit = () => {
         const invalid = validate();
 
         // todo integrate with backend
         console.log(password, invalid);
-    }
+    };
 
     return (
         <>
@@ -78,9 +78,27 @@ const UserInfoPasswordForm = ({setChangePassword}) => {
                 justifyContent="center"
                 alignItems="center"
             >
-                <UserInfoPasswordInput id="actualPassword" title="Aktualne hasło" value={password.actualPassword} handleChange={handleChange} error={errors.actualPassword} />
-                <UserInfoPasswordInput id="newPassword" title="Nowe hasło" value={password.newPassword} handleChange={handleChange} error={errors.newPassword} />
-                <UserInfoPasswordInput id="newPasswordRepeat" title="Powtórz nowe hasło" value={password.newPasswordRepeat} handleChange={handleChange} error={errors.newPasswordRepeat} />
+                <UserInfoPasswordInput
+                    id="actualPassword"
+                    title="Aktualne hasło"
+                    value={password.actualPassword}
+                    handleChange={handleChange}
+                    error={errors.actualPassword}
+                />
+                <UserInfoPasswordInput
+                    id="newPassword"
+                    title="Nowe hasło"
+                    value={password.newPassword}
+                    handleChange={handleChange}
+                    error={errors.newPassword}
+                />
+                <UserInfoPasswordInput
+                    id="newPasswordRepeat"
+                    title="Powtórz nowe hasło"
+                    value={password.newPasswordRepeat}
+                    handleChange={handleChange}
+                    error={errors.newPasswordRepeat}
+                />
             </Grid>
             <Grid
                 container
@@ -89,13 +107,13 @@ const UserInfoPasswordForm = ({setChangePassword}) => {
                 pt={3}
             >
                 <Grid item>
-                    <Button variant="contained" onClick={submit}>Zapisz</Button>
+                    <Button variant="contained" onClick={submit}>
+                        Zapisz
+                    </Button>
                 </Grid>
                 <Grid item>
                     <Button
-                        onClick={() =>
-                            setChangePassword((prev) => !prev)
-                        }
+                        onClick={() => setChangePassword((prev) => !prev)}
                         variant="contained"
                         color="warning"
                     >
