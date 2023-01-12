@@ -1,8 +1,9 @@
-import React, {createContext} from 'react';
+import React, {createContext, useContext, useEffect} from 'react';
 import {Paper, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableRow} from "@mui/material";
 import CustomTooltip from "../CustomTooltip";
 import {useQuery} from "react-query";
 import axios from "axios";
+import {BookListContext} from "./BookListWithSearch";
 
 
 export const BookContext = createContext({});
@@ -27,9 +28,20 @@ const BookTableRow = ({book, selectBook, children}) => {
 }
 
 const BookListTable = ({onSelect, children}) => {
-    const { isLoading, data, error } = useQuery("books", () => axios.get("http://localhost/api/book"))
+    const { isLoading, data, error } = useQuery("books", () => axios.get("http://localhost/api/book"), {
+        enabled: true,
+        refetchOnWindowFocus: false
+    })
+    const { books, setBooks } = useContext(BookListContext);
 
-    if(isLoading) {
+
+    useEffect(() => {
+        if(data && data.data) {
+            setBooks(data.data.books);
+        }
+    }, [isLoading])
+
+    if(isLoading || !books) {
         return (
             <Stack spacing={0.5}>
                 <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
@@ -44,7 +56,7 @@ const BookListTable = ({onSelect, children}) => {
             <TableContainer component={Paper}>
                 <Table aria-label="Lista książek" sx={{ tableLayout: "fixed" }}>
                     <TableBody>
-                        {data.data.books.map(book => (
+                        {books.map(book => (
                             <BookTableRow key={book._id} book={book} selectBook={onSelect}>
                                 {children}
                             </BookTableRow>
