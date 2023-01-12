@@ -1,12 +1,16 @@
 import React from 'react';
-import {AppBar, Avatar, Box, Container, Grid, IconButton, Toolbar, Tooltip, Typography} from "@mui/material";
+import {AppBar, Box, Container, Grid, IconButton, Toolbar, Tooltip, Typography} from "@mui/material";
 import theme from "../theme/theme";
 import {Link, Outlet} from "react-router-dom";
+import useAuth from "../../context/AuthProvider";
+import ColorAvatar from "../ColorAvatar";
 
 const Layout = ({container = true}) => {
+    const {user} = useAuth();
+
     return (
         <>
-            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+            <AppBar position="fixed" sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
                         <Box>
@@ -16,7 +20,7 @@ const Layout = ({container = true}) => {
                                     letterSpacing={theme.spacing(0.3)}
                                     sx={{
                                         mr: 2,
-                                        display: { xs: 'none', md: 'flex' },
+                                        display: {xs: 'none', md: 'flex'},
                                         color: 'inherit',
                                         textDecoration: 'none',
                                         alignItems: 'center',
@@ -57,29 +61,40 @@ c-21 -3 -54 -10 -74 -15 -20 -6 -39 -10 -43 -10 -3 0 -6 65 -6 144 l0 145 58
                             </Link>
                         </Box>
                         <Box sx={{marginLeft: "auto"}}>
-                            <Link to="/profile">
-                                <Tooltip title="Profil użytkownika">
-                                    <IconButton sx={{ p: 0 }}>
-                                        <Avatar>
-                                            M
-                                        </Avatar>
-                                    </IconButton>
-                                </Tooltip>
-                            </Link>
+
+                            {
+                                user ?
+                                    (
+                                        <Link to="/profile">
+                                            <Tooltip title="Profil użytkownika">
+                                                <IconButton sx={{p: 0}}>
+                                                    <ColorAvatar text={`${user.name} ${user.lastName}`} />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Link>
+                                    ) :
+                                    (
+                                        <Link to="/login">
+                                            <Typography>
+                                                Zaloguj się
+                                            </Typography>
+                                        </Link>
+                                    )
+                            }
                         </Box>
                     </Toolbar>
                 </Container>
             </AppBar>
-            <Toolbar />
+            <Toolbar/>
             <Grid mt={1} container>
                 {
                     container ? (
                         <Container maxWidth="xl">
-                            <Outlet />
+                            <Outlet/>
                         </Container>
                     ) : (
                         <Grid width="100%">
-                            <Outlet />
+                            <Outlet/>
                         </Grid>
                     )
                 }

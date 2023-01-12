@@ -10,6 +10,7 @@ import useSnackbar from "../../context/SnackbarProvider";
 
 import UserInfoPersonalDataInput
     from "./../../components/Profile/UserInfo/UserInfoPersonalData/UserInfoPersonalDataInput";
+import useAuth from "../../context/AuthProvider";
 
 const LoginForm = () => {
     const [show, setShow] = useState(false);
@@ -22,13 +23,15 @@ const LoginForm = () => {
         password: false,
     });
     const navigate = useNavigate();
+    const { setUser } = useAuth();
 
     const mutation = useMutation(() => axios.post('/api/auth/login', {email: personalData.email, password: personalData.password}), {
         onError: (error) => {
             const message = error.response.data.errors[0];
             addSnackbar(message, "error");
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            setUser(data.data);
             addSnackbar("Zalogowano", "success");
             navigate("/");
         }

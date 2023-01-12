@@ -11,42 +11,45 @@ import AdminPanel from "./views/AdminPanel/AdminPanel";
 import Profile from "./views/Profile";
 import {QueryClient, QueryClientProvider} from "react-query";
 import {SnackbarProvider} from "./context/SnackbarProvider"
+import {AuthProvider} from "./context/AuthProvider";
 
 const queryClient = new QueryClient()
 
 function App() {
     return (
-        <QueryClientProvider client={queryClient}>
-            <LocalizationProvider dateAdapter={AdapterMoment}>
-                <SnackbarProvider>
-                    <BrowserRouter>
-                        <Routes>
-                            <Route element={<Layout container={true}/>}>
-                                <Route path="/" element={<BookList/>}/>
-                                <Route path="/book/:bookId" element={<Book/>}/>
-                            </Route>
-                            <Route element={<Layout container={false}/>}>
-                                <Route
-                                    path="/profile"
-                                    element={<Navigate to="/profile/info"/>}
-                                />
-                                <Route path="/profile/:subPage" element={<Profile/>}/>
-                                <Route
-                                    path="/admin"
-                                    element={<Navigate to="/admin/users"/>}
-                                />
-                                <Route
-                                    path="/admin/:subPage"
-                                    element={<AdminPanel/>}
-                                />
-                            </Route>
-                            <Route path="/login" element={<Login/>}/>
-                            <Route path="/register" element={<Register/>}/>
-                        </Routes>
-                    </BrowserRouter>
-                </SnackbarProvider>
-            </LocalizationProvider>
-        </QueryClientProvider>
+        <AuthProvider>
+            <QueryClientProvider client={queryClient}>
+                <LocalizationProvider dateAdapter={AdapterMoment}>
+                    <SnackbarProvider>
+                        <BrowserRouter>
+                            <Routes>
+                                <Route element={<Layout container={true}/>}>
+                                    <Route path="/" element={<BookList/>}/>
+                                    <Route path="/book/:bookId" element={<Book/>}/>
+                                </Route>
+                                <Route element={<Layout container={false}/>}>
+                                    <Route
+                                        path="/profile"
+                                        element={<Navigate to="/profile/info"/>}
+                                    />
+                                    <Route path="/profile/:subPage" element={<Profile/>}/>
+                                    <Route
+                                        path="/admin"
+                                        element={<Navigate to="/admin/users"/>}
+                                    />
+                                    <Route
+                                        path="/admin/:subPage"
+                                        element={<AdminPanel/>}
+                                    />
+                                </Route>
+                                <Route path="/login" element={<Login/>}/>
+                                <Route path="/register" element={<Register/>}/>
+                            </Routes>
+                        </BrowserRouter>
+                    </SnackbarProvider>
+                </LocalizationProvider>
+            </QueryClientProvider>
+        </AuthProvider>
     );
 }
 
