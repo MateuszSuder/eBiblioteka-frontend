@@ -9,6 +9,8 @@ const UserInfoPersonalDataInput = ({
     error,
     handleChange,
     inputProps,
+    type,
+    endAdornment,
 }) => {
     return (
         <FormControl required variant="standard">
@@ -16,13 +18,14 @@ const UserInfoPersonalDataInput = ({
             <Input
                 id={id}
                 value={value}
+                type={type}
                 onChange={handleChange}
-                type="text"
                 error={!!error}
                 label={label}
                 inputProps={inputProps}
+                endAdornment={endAdornment}
             />
-            <FormHelperText error={!!error}>
+            <FormHelperText error={!!error} sx={{ m: 0 }}>
                 {error ? error : " "}
             </FormHelperText>
         </FormControl>

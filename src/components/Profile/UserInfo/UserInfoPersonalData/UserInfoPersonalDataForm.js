@@ -69,7 +69,6 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
         let value = e.target.value;
         let id = e.target.id;
 
-        console.log(id);
         const fieldsWithLettersOnly = [
             "firstName",
             "lastName",
@@ -104,7 +103,7 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                       [id]: "Podaj prawidłowy email",
                   }));
         }
-        console.log("3", value);
+
         if (id in personalData) {
             setPersonalData({
                 ...personalData,

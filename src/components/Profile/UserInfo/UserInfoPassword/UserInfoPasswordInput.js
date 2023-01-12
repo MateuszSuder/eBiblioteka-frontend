@@ -6,38 +6,51 @@ import {
     IconButton,
     InputAdornment,
     InputLabel,
+    Input,
     OutlinedInput,
 } from "@mui/material";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
 
-const UserInfoPasswordInput = ({ title, id, handleChange, value, error }) => {
+const UserInfoPasswordInput = ({
+    variant,
+    id,
+    handleChange,
+    value,
+    error,
+    label,
+}) => {
     const [show, setShow] = useState(false);
-
+    const VariantedInput = variant === "outlined" ? OutlinedInput : Input;
     return (
         <Grid item>
-            <FormControl variant="outlined">
-                <InputLabel htmlFor={id}>{title}</InputLabel>
-                <OutlinedInput
-                    id={id}
-                    value={value}
-                    onChange={handleChange}
-                    type={show ? "text" : "password"}
-                    error={!!error}
-                    endAdornment={
-                        <InputAdornment position="end">
-                            <IconButton
-                                aria-label="toggle password visibility"
-                                onClick={() => setShow((prev) => !prev)}
-                                edge="end"
-                            >
-                                {show ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                        </InputAdornment>
-                    }
-                    label={title}
-                />
-                <FormHelperText error={error}></FormHelperText>
+            <FormControl fullWidth required>
+                <InputLabel htmlFor={id}>{label}</InputLabel>
+                {
+                    <VariantedInput
+                        id={id}
+                        value={value}
+                        variant={variant}
+                        onChange={handleChange}
+                        type={show ? "text" : "password"}
+                        error={!!error}
+                        label={label}
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={() => setShow((prev) => !prev)}
+                                    edge="end"
+                                >
+                                    {show ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                }
+                <FormHelperText error={!!error} sx={{ m: 0 }}>
+                    {error ? error : " "}
+                </FormHelperText>
             </FormControl>
         </Grid>
     );
