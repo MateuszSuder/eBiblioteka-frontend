@@ -1,7 +1,8 @@
-import React, {createContext, useState} from 'react';
+import React, {createContext} from 'react';
 import {Paper, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableRow} from "@mui/material";
-import bookList from "../../mock/bookList";
 import CustomTooltip from "../CustomTooltip";
+import {useQuery} from "react-query";
+import axios from "axios";
 
 
 export const BookContext = createContext({});
@@ -26,23 +27,24 @@ const BookTableRow = ({book, selectBook, children}) => {
 }
 
 const BookListTable = ({onSelect, children}) => {
-    const [loading, setLoading] = useState(false);
+    const { isLoading, data, error } = useQuery("books", () => axios.get("http://localhost/api/book"))
 
-    if(loading)
+    if(isLoading) {
         return (
             <Stack spacing={0.5}>
-                <Skeleton variant={"rounded"} animation={"wave"} height={60} />
-                <Skeleton variant={"rounded"} animation={"wave"} height={60} />
-                <Skeleton variant={"rounded"} animation={"wave"} height={60} />
+                <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
             </Stack>
         )
+    }
 
     return (
         <>
             <TableContainer component={Paper}>
                 <Table aria-label="Lista książek" sx={{ tableLayout: "fixed" }}>
                     <TableBody>
-                        {bookList.books.map(book => (
+                        {data.data.books.map(book => (
                             <BookTableRow key={book._id} book={book} selectBook={onSelect}>
                                 {children}
                             </BookTableRow>

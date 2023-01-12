@@ -1,15 +1,24 @@
-import React, { useState } from "react";
-import { Button, Divider, Grid, TextField, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {Button, Divider, Grid, TextField, Typography} from "@mui/material";
+import {Link} from "react-router-dom";
 import theme from "../../components/theme/theme";
+import {useMutation} from "react-query";
+import axios from 'axios';
+import useSnackbar from "../../context/SnackbarProvider";
 
 const LoginForm = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const mutation = useMutation(() => axios.post('/api/auth/login', {email, password}));
+    const { addSnackbar } = useSnackbar();
 
-    const submit = () => {
-        console.log(email, password);
-    };
+    useEffect(() => {
+        if(mutation.isError) {
+            const message = mutation.error.response.data.errors[0];
+            console.log(message);
+            addSnackbar(message, "error");
+        }
+    }, [mutation.isError])
 
     return (
         <Grid py={4} px={3} container flexDirection="column" gap={1}>
@@ -47,7 +56,7 @@ const LoginForm = () => {
                     <Button
                         variant="contained"
                         style={{ minWidth: "50%", width: "100%" }}
-                        onClick={submit}
+                        onClick={() => mutation.mutate({email, password})}
                     >
                         Zaloguj
                     </Button>

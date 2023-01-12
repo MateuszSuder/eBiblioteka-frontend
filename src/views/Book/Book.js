@@ -1,23 +1,35 @@
-import React, {useEffect, useState} from 'react';
-import {useParams} from "react-router-dom";
+import React from 'react';
+import {Navigate, useParams} from "react-router-dom";
 import {Button, Card, Divider, Grid, Skeleton, Stack, Typography} from "@mui/material";
-import bookList from "../../mock/bookList";
 import BookRow from "../../components/Book/BookRow";
+import {useMutation, useQuery} from "react-query";
+import axios from "axios";
 
 const Book = () => {
-    const [book, setBook] = useState(bookList.books[0]);
-    const [errors, setErrors] = useState({ from: false, to: false });
     const {bookId} = useParams();
+    const { isLoading, error, data } = useQuery(`book-${bookId}`, () => axios.get(`/api/book/${bookId}`), { retry: false });
+    const mutation = useMutation(() => axios.post(`/api/reservation/123/${bookId}`))
 
-    useEffect(() => {
-        setBook(bookList.books.find(book => book._id === parseInt(bookId)));
-    }, [book, bookId])
+    if (isLoading) {
+        return (
+            <Stack>
+                <Skeleton variant="text"/>
+                <Skeleton variant="rectangular"/>
+                <Skeleton variant="rectangular"/>
+                <Skeleton variant="rectangular"/>
+                <Skeleton variant="rectangular"/>
+            </Stack>
 
-    if (!book) return (
-        <Stack>
-            <Skeleton variant="text"/>
-        </Stack>
-    )
+        )
+    }
+
+    if(error) {
+        return (
+            <Navigate to="/"/>
+        )
+    }
+
+    const book = data.data;
 
     return (
         <Grid container flexDirection="column" my={3}>
@@ -38,7 +50,7 @@ const Book = () => {
                 </Grid>
             </Card>
             <Grid item mt={2} justifyContent="flex-end" display="flex">
-                <Button variant="contained">
+                <Button variant="contained" disabled={mutation.isLoading} onClick={mutation.mutate}>
                     Zarezerwuj
                 </Button>
             </Grid>

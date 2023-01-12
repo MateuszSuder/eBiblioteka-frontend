@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-    AppBar,
-    Avatar,
-    Box,
-    Container,
-    Grid,
-    IconButton,
-    Toolbar,
-    Tooltip,
-    Typography
-} from "@mui/material";
+import {AppBar, Avatar, Box, Container, Grid, IconButton, Toolbar, Tooltip, Typography} from "@mui/material";
 import theme from "../theme/theme";
 import {Link, Outlet} from "react-router-dom";
 
@@ -93,7 +83,6 @@ c-21 -3 -54 -10 -74 -15 -20 -6 -39 -10 -43 -10 -3 0 -6 65 -6 144 l0 145 58
                         </Grid>
                     )
                 }
-
             </Grid>
         </>
     );
