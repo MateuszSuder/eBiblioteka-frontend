@@ -1,22 +1,29 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
     Button,
     Divider,
+    FormControl,
+    FormHelperText,
     Grid,
+    IconButton,
+    InputAdornment,
     TextField,
     Typography,
-    FormHelperText,
-    FormControl,
-    InputAdornment,
-    IconButton,
 } from "@mui/material";
 import theme from "../../components/theme/theme";
-import { Link } from "react-router-dom";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import UserInfoPersonalDataInput from "./../../components/Profile/UserInfo/UserInfoPersonalData/UserInfoPersonalDataInput";
+import {Link, useNavigate} from "react-router-dom";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
+import UserInfoPersonalDataInput
+    from "./../../components/Profile/UserInfo/UserInfoPersonalData/UserInfoPersonalDataInput";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
+import {useMutation} from "react-query";
+import axios from "axios";
+import useSnackbar from "../../context/SnackbarProvider";
+
 const RegisterForm = () => {
+    const navigate = useNavigate();
+    const { addSnackbar } = useSnackbar();
     const [show, setShow] = useState(false);
     const [personalData, setPersonalData] = useState({
         email: "",
@@ -46,6 +53,13 @@ const RegisterForm = () => {
             apartmentNumber: false,
         },
     });
+
+    const mutation = useMutation(() => axios.post("/api/auth/register", {...personalData, name: personalData.firstName}), {
+        onSuccess: () => {
+            addSnackbar("Pomyślnie zarejestrowano!", "success");
+            navigate("/login");
+        }
+    })
 
     function setErrorIfEmpty(key, value) {
         if (!value) {
@@ -153,7 +167,7 @@ const RegisterForm = () => {
             },
         });
         validateIfEmpty(personalData);
-        console.log(personalData, errors);
+        mutation.mutate();
     };
     return (
         <Grid py={4} px={3} container direction="column" gap={1}>

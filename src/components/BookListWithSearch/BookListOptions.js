@@ -26,8 +26,7 @@ const BookListOptions = ({inputWidth, includeCategory}) => {
 
     useEffect(() => {
         if(categories.data) {
-            console.log(categories.data.data.categories);
-            setCategoriesList(prevState => [...prevState, ...categories.data.data.categories])
+            setCategoriesList([...categories.data.data.categories])
         }
     }, [categories.data])
 

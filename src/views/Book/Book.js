@@ -5,12 +5,18 @@ import BookRow from "../../components/Book/BookRow";
 import {useMutation, useQuery} from "react-query";
 import axios from "axios";
 import useAuth from "../../context/AuthProvider";
+import useSnackbar from "../../context/SnackbarProvider";
 
 const Book = () => {
+    const { addSnackbar } = useSnackbar();
     const { user } = useAuth();
     const {bookId} = useParams();
     const { isLoading, error, data } = useQuery(`book-${bookId}`, () => axios.get(`/api/book/${bookId}`), { retry: false });
-    const mutation = useMutation(() => axios.post(`/api/reservation/${user._id}/${bookId}`))
+    const mutation = useMutation(() => axios.post(`/api/reservation/${user._id}/${bookId}`), {
+        onSuccess: () => {
+            addSnackbar("Zarezerwowano!", "success");
+        }
+    })
 
     if (isLoading) {
         return (
