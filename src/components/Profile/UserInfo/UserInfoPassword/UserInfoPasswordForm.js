@@ -80,24 +80,27 @@ const UserInfoPasswordForm = ({ setChangePassword }) => {
             >
                 <UserInfoPasswordInput
                     id="actualPassword"
-                    title="Aktualne hasło"
+                    label="Aktualne hasło"
                     value={password.actualPassword}
                     handleChange={handleChange}
                     error={errors.actualPassword}
+                    variant="outlined"
                 />
                 <UserInfoPasswordInput
                     id="newPassword"
-                    title="Nowe hasło"
+                    label="Nowe hasło"
                     value={password.newPassword}
                     handleChange={handleChange}
                     error={errors.newPassword}
+                    variant="outlined"
                 />
                 <UserInfoPasswordInput
                     id="newPasswordRepeat"
-                    title="Powtórz nowe hasło"
+                    label="Powtórz nowe hasło"
                     value={password.newPasswordRepeat}
                     handleChange={handleChange}
                     error={errors.newPasswordRepeat}
+                    variant="outlined"
                 />
             </Grid>
             <Grid

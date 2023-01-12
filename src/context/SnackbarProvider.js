@@ -9,7 +9,6 @@ export const SnackbarProvider = ({children}) => {
     const [snackbars, setSnackbars] = useState([]);
 
     const addSnackbar = (message, severity) => {
-        console.log("Adding snackbar ", message);
         const id = snackbars.length;
         const obj = {
             message,
