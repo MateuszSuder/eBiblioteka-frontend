@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Button, Divider, Grid, TextField, Typography } from "@mui/material";
+import {
+    Button,
+    Divider,
+    FormControl,
+    Grid,
+    TextField,
+    Typography,
+    FormHelperText,
+} from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import theme from "../../../theme/theme";
 import UserInfoPersonalDataInput from "./UserInfoPersonalDataInput";
@@ -30,12 +38,79 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
             apartmentNumber: false,
         },
     });
-    function validateEmail(email) {
-        const regex =
-            /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-        return regex.test(email);
+
+    function setErrorIfEmpty(key, value) {
+        if (!value) {
+            setErrors((prev) => ({
+                ...prev,
+                ...(key in personalData
+                    ? { [key]: "Uzupełnij pole" }
+                    : key in personalData.address
+                    ? {
+                          address: {
+                              ...prev.address,
+                              [key]: "Uzupełnij pole",
+                          },
+                      }
+                    : {}),
+            }));
+        }
     }
-    function validate(key, value) {
+    function validateIfEmpty(personalData) {
+        for (const [key, value] of Object.entries(personalData)) {
+            setErrorIfEmpty(key, value);
+        }
+
+        for (const [key, value] of Object.entries(personalData.address)) {
+            setErrorIfEmpty(key, value);
+        }
+    }
+    const validateOnChange = (e) => {
+        let value = e.target.value;
+        let id = e.target.id;
+
+        if (id === "postal") {
+            if (value.length === 2 && !value.endsWith("-")) {
+                value = value.replace(/(\d{2})/, "$1-");
+            } else if (value.endsWith("-") && value.length === 3) {
+                value = value.slice(0, -1);
+            } else if (value.length === 6) {
+                value = value.replace(/(\d{2})(\d{4})/, "$1-$2");
+            }
+        }
+        if (id === "email") {
+            console.log(e.target.value);
+            e.target.value.match(
+                /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+            )
+                ? setErrors((prev) => ({
+                      ...prev,
+                      [id]: false,
+                  }))
+                : setErrors((prev) => ({
+                      ...prev,
+                      [id]: "Podaj prawidłowy email",
+                  }));
+        }
+
+        if (id in personalData) {
+            setPersonalData({
+                ...personalData,
+                [id]: value,
+            });
+        }
+        if (e.target.id in personalData.address) {
+            setPersonalData({
+                ...personalData,
+                address: {
+                    ...personalData.address,
+                    [e.target.id]: value,
+                },
+            });
+        }
+    };
+
+    const submit = () => {
         setErrors({
             email: false,
             firstName: false,
@@ -49,63 +124,9 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                 apartmentNumber: false,
             },
         });
-
-        if (!value) {
-            setErrors((prev) => ({
-                ...prev,
-                ...(key in personalData
-                    ? { [key]: "Uzupełnij pole" }
-                    : key in personalData.address
-                    ? { address: { ...prev.address, [key]: "Uzupełnij pole" } }
-                    : {}),
-            }));
-        }
-        if (key === "email") {
-            console.log(key);
-            if (!validateEmail(value)) {
-                setErrors((prev) => ({
-                    ...prev,
-                    [key]: "Podaj prawidłowy email",
-                }));
-            }
-        }
-    }
-
-    const handleChange = (e) => {
-        const value = e.target.value;
-
-        if (e.target.id in personalData) {
-            validate(e.target.id, value);
-            setPersonalData({
-                ...personalData,
-                [e.target.id]: value,
-            });
-
-            return;
-        }
-        if (e.target.id in personalData.address) {
-            validate(e.target.id, value);
-            setPersonalData({
-                ...personalData,
-                address: {
-                    ...personalData.address,
-                    [e.target.id]: value,
-                },
-            });
-        }
+        validateIfEmpty(personalData);
+        console.log(personalData, errors);
     };
-
-    const submit = () => {
-        Object.keys(personalData).forEach((key) => {
-            validate(key, personalData[key]);
-        });
-
-        Object.keys(personalData.address).forEach((key) => {
-            validate(`address.${key}`, personalData.address[key]);
-            console.log(key, personalData.address[key]);
-        });
-    };
-
     return (
         <>
             <Grid container spacing={3}>
@@ -114,8 +135,12 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                         id="firstName"
                         label="Imię"
                         value={personalData.firstName}
-                        handleChange={handleChange}
+                        handleChange={validateOnChange}
                         error={errors.firstName}
+                        inputProps={{
+                            maxLength: 30,
+                            pattern: "[a-zA-Z]+",
+                        }}
                     />
                 </Grid>
                 <Grid container item xs={6} direction="column">
@@ -123,31 +148,51 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                         id="lastName"
                         label="Nazwisko"
                         value={personalData.lastName}
-                        handleChange={handleChange}
+                        handleChange={validateOnChange}
                         error={errors.lastName}
+                        inputProps={{
+                            maxLength: 30,
+                            pattern: "[a-zA-Z]+",
+                        }}
                     />
                 </Grid>
                 <Grid container item xs={6} direction="column">
-                    <DatePicker
-                        disableFuture
-                        label="Data urodzenia"
-                        id="dateOfBirth"
-                        value={personalData.dateOfBirth}
-                        onChange={(newValue) =>
-                            setPersonalData({
-                                ...personalData,
-                                dateOfBirth: newValue,
-                            })
-                        }
-                        renderInput={(params) => (
-                            <TextField
-                                required
-                                variant="standard"
-                                {...params}
-                                value={personalData.dateOfBirth}
-                            />
-                        )}
-                    />
+                    <FormControl
+                        onChange={validateOnChange}
+                        error={!!errors.dateOfBirth}
+                    >
+                        <DatePicker
+                            disableFuture
+                            label="Data urodzenia"
+                            id="dateOfBirth"
+                            value={personalData.dateOfBirth}
+                            onChange={(newValue) =>
+                                setPersonalData({
+                                    ...personalData,
+                                    dateOfBirth: newValue,
+                                })
+                            }
+                            renderInput={(params) => (
+                                <>
+                                    <TextField
+                                        name="dateOfBirth"
+                                        required
+                                        variant="standard"
+                                        {...params}
+                                        error={
+                                            errors.dateOfBirth
+                                                ? !!errors.dateOfBirth
+                                                : false
+                                        }
+                                        value={personalData.dateOfBirth}
+                                    />
+                                </>
+                            )}
+                        />
+                        <FormHelperText sx={{ m: 0 }}>
+                            {errors.dateOfBirth ? errors.dateOfBirth : ""}
+                        </FormHelperText>
+                    </FormControl>
                 </Grid>
 
                 <Grid container item xs={6} direction="column">
@@ -155,24 +200,33 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                         id="email"
                         label="Email"
                         value={personalData.email}
-                        handleChange={handleChange}
+                        handleChange={validateOnChange}
                         error={errors.email}
+                        inputProps={{
+                            pattern: "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$",
+                            max: 30,
+                        }}
                     />
                 </Grid>
             </Grid>
-            <Grid item xs={12} mt={5}>
+            <Grid item xs={12} mt={2}>
                 <Typography variant="caption" color={theme.palette.grey["600"]}>
                     Adres
                 </Typography>
                 <Divider />
             </Grid>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} mt={1}>
                 <Grid container item xs={4} direction="column">
                     <UserInfoPersonalDataInput
                         id="postal"
                         label="Kod pocztowy"
+                        handleChange={validateOnChange}
                         value={personalData.address.postal}
-                        handleChange={handleChange}
+                        inputProps={{
+                            pattern: "[0-9-]*",
+                            min: 6,
+                            maxLength: 6,
+                        }}
                         error={errors.address.postal}
                     />
                 </Grid>
@@ -181,8 +235,11 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                         id="city"
                         label="Miasto"
                         value={personalData.address.city}
-                        handleChange={handleChange}
+                        handleChange={validateOnChange}
                         error={errors.address.city}
+                        inputProps={{
+                            maxLength: 30,
+                        }}
                     />
                 </Grid>
                 <Grid container item xs={12} direction="column">
@@ -190,8 +247,11 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                         id="street"
                         label="Ulica"
                         value={personalData.address.street}
-                        handleChange={handleChange}
+                        handleChange={validateOnChange}
                         error={errors.address.street}
+                        inputProps={{
+                            maxLength: 50,
+                        }}
                     />
                 </Grid>
                 <Grid container item xs={6} direction="column">
@@ -199,8 +259,11 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                         id="houseNumber"
                         label="Nr domu"
                         value={personalData.address.houseNumber}
-                        handleChange={handleChange}
+                        handleChange={validateOnChange}
                         error={errors.address.houseNumber}
+                        inputProps={{
+                            maxLength: 6,
+                        }}
                     />
                 </Grid>
                 <Grid container item xs={6} direction="column">
@@ -208,8 +271,11 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                         id="apartmentNumber"
                         label="Nr mieszkania"
                         value={personalData.address.apartmentNumber}
-                        handleChange={handleChange}
+                        handleChange={validateOnChange}
                         error={errors.address.apartmentNumber}
+                        inputProps={{
+                            maxLength: 6,
+                        }}
                     />
                 </Grid>
             </Grid>

@@ -8,6 +8,7 @@ const UserInfoPersonalDataInput = ({
     value,
     error,
     handleChange,
+    inputProps,
 }) => {
     return (
         <FormControl required variant="standard">
@@ -19,6 +20,7 @@ const UserInfoPersonalDataInput = ({
                 type="text"
                 error={!!error}
                 label={label}
+                inputProps={inputProps}
             />
             <FormHelperText error={!!error}>
                 {error ? error : " "}

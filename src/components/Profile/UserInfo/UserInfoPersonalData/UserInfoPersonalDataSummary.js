@@ -1,6 +1,6 @@
-import React from 'react';
-import {Grid, IconButton, Typography} from "@mui/material";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import React from "react";
+import { Grid, IconButton, Typography } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 
 const UserInfoPersonalDataSummary = ({ setShowForm }) => {
     return (
@@ -11,18 +11,12 @@ const UserInfoPersonalDataSummary = ({ setShowForm }) => {
                 justifyContent="center"
                 alignItems="center"
             >
-                <Typography variant="h6">
-                    Imię Nazwisko
-                </Typography>
+                <Typography variant="h6">Imię Nazwisko</Typography>
             </Grid>
 
             <Grid item>
-                <IconButton
-                    onClick={() =>
-                        setShowForm((prev) => !prev)
-                    }
-                >
-                    <EditOutlinedIcon />
+                <IconButton onClick={() => setShowForm((prev) => !prev)}>
+                    <EditIcon />
                 </IconButton>
             </Grid>
         </>

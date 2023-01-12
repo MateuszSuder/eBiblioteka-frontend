@@ -1,9 +1,9 @@
-import React from 'react';
-import {Grid, IconButton, Typography} from "@mui/material";
+import React from "react";
+import { Grid, IconButton, Typography } from "@mui/material";
 import theme from "../../../theme/theme";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import EditIcon from "@mui/icons-material/Edit";
 
-const UserInfoPasswordSummary = ({setChangePassword}) => {
+const UserInfoPasswordSummary = ({ setChangePassword }) => {
     return (
         <>
             <Grid
@@ -21,12 +21,8 @@ const UserInfoPasswordSummary = ({setChangePassword}) => {
                 </Typography>
             </Grid>
             <Grid item>
-                <IconButton
-                    onClick={() =>
-                        setChangePassword((prev) => !prev)
-                    }
-                >
-                    <EditOutlinedIcon />
+                <IconButton onClick={() => setChangePassword((prev) => !prev)}>
+                    <EditIcon />
                 </IconButton>
             </Grid>
         </>
