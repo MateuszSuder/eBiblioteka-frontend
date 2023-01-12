@@ -1,9 +1,18 @@
-import {createContext, useContext, useMemo, useState} from "react";
+import {createContext, useContext, useEffect, useMemo, useState} from "react";
+import {useQuery} from "react-query";
+import axios from "axios";
 
 const AuthContext = createContext({});
 
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);
+    const { data, isLoading } = useQuery("user", () => axios.get("/api/user"));
+
+    useEffect(() => {
+        if(data) {
+            setUser(data.data);
+        }
+    }, [isLoading])
 
     const memo = useMemo(
         () => ({
@@ -14,7 +23,7 @@ export const AuthProvider = ({children}) => {
 
     return (
         <AuthContext.Provider value={memo}>
-            { children }
+            { !isLoading && children }
         </AuthContext.Provider>
     )
 }
