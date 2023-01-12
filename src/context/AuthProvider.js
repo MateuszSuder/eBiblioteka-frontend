@@ -6,7 +6,10 @@ const AuthContext = createContext({});
 
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);
-    const { data, isLoading } = useQuery("user", () => axios.get("/api/user"));
+    const { data, isLoading } = useQuery("user", () => axios.get("/api/user"), {
+        retry: false,
+        refetchOnWindowFocus: false
+    });
 
     useEffect(() => {
         if(data) {

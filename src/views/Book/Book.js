@@ -4,11 +4,13 @@ import {Button, Card, Divider, Grid, Skeleton, Stack, Typography} from "@mui/mat
 import BookRow from "../../components/Book/BookRow";
 import {useMutation, useQuery} from "react-query";
 import axios from "axios";
+import useAuth from "../../context/AuthProvider";
 
 const Book = () => {
+    const { user } = useAuth();
     const {bookId} = useParams();
     const { isLoading, error, data } = useQuery(`book-${bookId}`, () => axios.get(`/api/book/${bookId}`), { retry: false });
-    const mutation = useMutation(() => axios.post(`/api/reservation/123/${bookId}`))
+    const mutation = useMutation(() => axios.post(`/api/reservation/${user._id}/${bookId}`))
 
     if (isLoading) {
         return (
@@ -50,7 +52,7 @@ const Book = () => {
                 </Grid>
             </Card>
             <Grid item mt={2} justifyContent="flex-end" display="flex">
-                <Button variant="contained" disabled={mutation.isLoading} onClick={mutation.mutate}>
+                <Button variant="contained" disabled={mutation.isLoading || !user} onClick={mutation.mutate}>
                     Zarezerwuj
                 </Button>
             </Grid>
