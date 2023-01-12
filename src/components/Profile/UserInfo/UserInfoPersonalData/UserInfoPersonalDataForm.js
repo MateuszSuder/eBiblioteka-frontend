@@ -69,6 +69,17 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
         let value = e.target.value;
         let id = e.target.id;
 
+        console.log(id);
+        const fieldsWithLettersOnly = [
+            "firstName",
+            "lastName",
+            "city",
+            "street",
+        ];
+        if (fieldsWithLettersOnly.includes(id)) {
+            value = value.replace(/[^a-zA-Z]+/gi, "");
+        }
+
         if (id === "postal") {
             if (value.length === 2 && !value.endsWith("-")) {
                 value = value.replace(/(\d{2})/, "$1-");
@@ -76,11 +87,12 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                 value = value.slice(0, -1);
             } else if (value.length === 6) {
                 value = value.replace(/(\d{2})(\d{4})/, "$1-$2");
+            } else if (!/^\d+$/.test(value) && !/^\d+-\d+$/.test(value)) {
+                value = value.replace(/[^0-9]+/gi, "");
             }
         }
         if (id === "email") {
-            console.log(e.target.value);
-            e.target.value.match(
+            value.match(
                 /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
             )
                 ? setErrors((prev) => ({
@@ -92,7 +104,7 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                       [id]: "Podaj prawidłowy email",
                   }));
         }
-
+        console.log("3", value);
         if (id in personalData) {
             setPersonalData({
                 ...personalData,
@@ -223,7 +235,6 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
                         handleChange={validateOnChange}
                         value={personalData.address.postal}
                         inputProps={{
-                            pattern: "[0-9-]*",
                             min: 6,
                             maxLength: 6,
                         }}
