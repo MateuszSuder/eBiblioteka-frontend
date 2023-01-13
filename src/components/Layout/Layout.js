@@ -65,8 +65,8 @@ c-21 -3 -54 -10 -74 -15 -20 -6 -39 -10 -43 -10 -3 0 -6 65 -6 144 l0 145 58
                             {
                                 user ?
                                     (
-                                        <Link to="/profile">
-                                            <Tooltip title="Profil użytkownika">
+                                        <Link to={user.role === "USER" ? "/profile" : "/admin"}>
+                                            <Tooltip title={user.role === "USER" ? "Profil użytkownika" : "Panel administratora"}>
                                                 <IconButton sx={{p: 0}}>
                                                     <ColorAvatar text={`${user.name} ${user.lastName}`} />
                                                 </IconButton>

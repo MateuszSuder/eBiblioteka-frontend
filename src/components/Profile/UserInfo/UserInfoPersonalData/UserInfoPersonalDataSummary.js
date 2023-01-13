@@ -1,8 +1,11 @@
 import React from "react";
-import { Grid, IconButton, Typography } from "@mui/material";
+import {Grid, IconButton, Typography} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import useAuth from "../../../../context/AuthProvider";
 
 const UserInfoPersonalDataSummary = ({ setShowForm }) => {
+    const {user} = useAuth();
+
     return (
         <>
             <Grid
@@ -11,7 +14,7 @@ const UserInfoPersonalDataSummary = ({ setShowForm }) => {
                 justifyContent="center"
                 alignItems="center"
             >
-                <Typography variant="h6">Imię Nazwisko</Typography>
+                <Typography variant="h6">{user.name} {user.lastName}</Typography>
             </Grid>
 
             <Grid item>

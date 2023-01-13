@@ -52,13 +52,12 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
     });
 
     useEffect(() => {
-        console.log(user);
         if(user) {
             const {_id, isBanned, isDeleted, role, name, address: { _id: aId, ...restAddress}, ...u} = user;
             const newPersonalData = {
                 ...u,
                 address: {...restAddress},
-                firstName: u.name
+                firstName: name
             }
             setPersonalData(prevState => ({
                 ...prevState,
