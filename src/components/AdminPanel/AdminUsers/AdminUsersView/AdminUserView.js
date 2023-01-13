@@ -6,11 +6,9 @@ import AdminUserReservations from "./AdminUserReservation";
 import AdminUserBorrowings from "./AdminUserBorrowings";
 import AdminUserAddBorrowing from "./AdminUserAddBorrowing";
 import CustomModal from "../../../CustomModal";
-import useFindUser from "../../../../hooks/useFindUser";
 
-const AdminUserView = ({open, setOpen, id}) => {
+const AdminUserView = ({open, setOpen, user}) => {
     const [openAddBorrowing, setOpenAddBorrowing] = useState(false);
-    const user = useFindUser(id)
 
     if (!user) return (
         <></>

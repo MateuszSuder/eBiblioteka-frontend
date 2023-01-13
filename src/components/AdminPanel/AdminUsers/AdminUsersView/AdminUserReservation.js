@@ -1,24 +1,76 @@
-import {Accordion, AccordionDetails, AccordionSummary, Grid, Link, Typography} from "@mui/material";
-import bookList from "../../../../mock/bookList";
+import {Accordion, AccordionDetails, AccordionSummary, Grid, Link, Skeleton, Stack, Typography} from "@mui/material";
 import {ExpandMore} from "@mui/icons-material";
 import theme from "../../../theme/theme";
 import FullWidthButton from "../../../FullWidthButton";
-import React, {useEffect, useState} from "react";
+import {useState} from "react";
 import TypographyLink from "../../../TypographyLink";
 import AdminUserAccordion from "./AdminUserAccordion";
-import userReservations from "../../../../mock/userReservations";
 import ReservationStatusChip from "../../ReservationStatusChip";
+import {useMutation, useQuery, useQueryClient} from "react-query";
+import axios from "axios";
+import useSnackbar from "../../../../context/SnackbarProvider";
 
 const AdminUserReservation = ({item: reservation}) => {
-    const book = bookList.books.find(book => book._id === reservation.bookId);
+    const [expanded, setExpanded] = useState(false);
+    const queryClient = useQueryClient();
+    const { addSnackbar } = useSnackbar();
+    const { isLoading, data, error} = useQuery(`book-${reservation.bookId}`, () => axios.get(`/api/book/${reservation.bookId}`), {
+        refetchOnWindowFocus: false
+    });
+    const deleteReservationMutation = useMutation(() => axios.delete(`/api/reservation/${reservation._id}`), {
+        onSuccess: async () => {
+            setExpanded(false);
+            addSnackbar("Rezerwacja usunięta", "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${reservation.userId}-reservations`]});
+        },
+        onError: () => {
+            addSnackbar("Nie udało się usunąć rezerwacji", "error")
+        }
+    })
+
+    const borrowReservationMutation = useMutation(() => axios.post(`/api/borrowing/${reservation.userId}/${reservation.bookId}?reservationId=${reservation._id}`), {
+        onSuccess: async () => {
+            setExpanded(false);
+            addSnackbar("Książka wypożyczona", "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${reservation.userId}-reservations`]});
+        },
+        onError: () => {
+            addSnackbar("Nie udało się utworzyć wypożyczenia", "error")
+        }
+    })
+
+    if(isLoading) {
+        return (
+            <Grid maxWidth="xl">
+                <Stack spacing={0.5}>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                </Stack>
+            </Grid>
+        )
+    }
+
+    if(error) {
+        return (
+            <Grid maxWidth="xl">
+                <Typography align="center" variant="h5" color={theme.palette.error.main}>
+                    Wystąpił błąd
+                </Typography>
+            </Grid>
+        )
+    }
+
+    const book = data.data;
     const title = book.title.length > 35 ? book.title.slice(0, 35) + "..." : book.title
 
     return (
-        <Accordion>
+        <Accordion expanded={expanded}>
             <AccordionSummary
                 expandIcon={<ExpandMore/>}
                 aria-controls="panel1a-content"
                 id="panel1a-header"
+                onClick={() => setExpanded(!expanded)}
             >
                 <Grid container>
                     <Grid item xs={8}>
@@ -35,7 +87,7 @@ const AdminUserReservation = ({item: reservation}) => {
                     <Grid item>
                         <Link to={`/book/${reservation.bookId}`}>
                             <TypographyLink variant="h6">
-                                {title}
+                                {book.title}
                             </TypographyLink>
                         </Link>
                     </Grid>
@@ -43,7 +95,7 @@ const AdminUserReservation = ({item: reservation}) => {
                         reservation.validTill &&
                         <Grid item>
                             <Typography variant="caption" color={theme.palette.grey["400"]}>
-                                Zarezerwowano do: {reservation.validTill}
+                                Zarezerwowano do: {new Date(reservation.validTill).toLocaleDateString()}
                             </Typography>
                         </Grid>
                     }
@@ -51,10 +103,10 @@ const AdminUserReservation = ({item: reservation}) => {
                         reservation.status === "RESERVED" && (
                             <Grid item container mt={3} justifyContent="space-between" px={2}>
                                 <Grid item xs={5}>
-                                    <FullWidthButton variant="contained" color="error">Usuń rezerwację</FullWidthButton>
+                                    <FullWidthButton variant="contained" color="error" onClick={() => deleteReservationMutation.mutate()}>Usuń rezerwację</FullWidthButton>
                                 </Grid>
                                 <Grid item xs={5}>
-                                    <FullWidthButton variant="contained">Wypożycz</FullWidthButton>
+                                    <FullWidthButton variant="contained" onClick={() => borrowReservationMutation.mutate()}>Wypożycz</FullWidthButton>
                                 </Grid>
                             </Grid>
                         )
@@ -66,15 +118,24 @@ const AdminUserReservation = ({item: reservation}) => {
 }
 
 const AdminUserReservations = ({userId}) => {
-    const [reservations, setReservations] = useState([]);
+    const { data, isLoading, error } = useQuery(`user-${userId}-reservations`, () => axios.get(`/api/reservation/${userId}`), {
+        refetchOnWindowFocus: false
+    });
 
-    useEffect(() => {
-        if (userId) setReservations(userReservations.filter(r => r.userId === userId));
-    }, [userId])
 
-    if(!reservations) return (
-        <></>
+    if(isLoading) return (
+        <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
     )
+
+    if(error) {
+        return (
+            <Typography align="center" variant="h5" color={theme.palette.error.main}>
+                Wystąpił błąd
+            </Typography>
+        )
+    }
+
+    const reservations = data.data.reservations;
 
     return (
         <AdminUserAccordion

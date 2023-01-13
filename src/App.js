@@ -12,12 +12,12 @@ import Profile from "./views/Profile";
 import {QueryClient, QueryClientProvider} from "react-query";
 import {SnackbarProvider} from "./context/SnackbarProvider"
 import {AuthProvider} from "./context/AuthProvider";
+import {ReactQueryDevtools} from "react-query/devtools";
 
 const queryClient = new QueryClient()
 
 function App() {
     return (
-
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
                 <LocalizationProvider dateAdapter={AdapterMoment}>
@@ -31,12 +31,12 @@ function App() {
                                 <Route element={<Layout container={false}/>}>
                                     <Route
                                         path="/profile"
-                                        element={<Navigate to="/profile/info"/>}
+                                        element={<Navigate to="/profile/info" replace={true}/>}
                                     />
                                     <Route path="/profile/:subPage" element={<Profile/>}/>
                                     <Route
                                         path="/admin"
-                                        element={<Navigate to="/admin/users"/>}
+                                        element={<Navigate to="/admin/users" replace={true}/>}
                                     />
                                     <Route
                                         path="/admin/:subPage"
@@ -50,6 +50,7 @@ function App() {
                     </SnackbarProvider>
                 </LocalizationProvider>
             </AuthProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
     );
 }

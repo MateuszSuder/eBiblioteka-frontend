@@ -1,14 +1,24 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import AdminUserAccordion from "./AdminUserAccordion";
-import userBorrowings from "../../../../mock/userBorrowings";
-import {Accordion, AccordionDetails, AccordionSummary, Chip, Grid, Link, Typography} from "@mui/material";
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Chip,
+    Grid,
+    Link,
+    Skeleton,
+    Stack,
+    Typography
+} from "@mui/material";
 import {ExpandMore} from "@mui/icons-material";
-import bookList from "../../../../mock/bookList";
 import BORROWING_STATUS from "../../../../enums/BORROWING_STATUS";
 import TypographyLink from "../../../TypographyLink";
 import theme from "../../../theme/theme";
 import FullWidthButton from "../../../FullWidthButton";
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import {useQuery} from "react-query";
+import axios from "axios";
 
 const BorrowingStatusChip = ({status}) => {
     switch (status) {
@@ -30,10 +40,33 @@ const BorrowingStatusChip = ({status}) => {
 }
 
 const AdminUserBorrowing = ({item: borrowing}) => {
-    if(!borrowing) return (
-        <></>
-    )
-    const book = bookList.books.find(book => book._id === borrowing.bookId);
+    const { isLoading, data, error} = useQuery(`book-${borrowing.bookId}`, () => axios.get(`/api/book/${borrowing.bookId}`), {
+        refetchOnWindowFocus: false
+    });
+
+    if(isLoading) {
+        return (
+            <Grid maxWidth="xl">
+                <Stack spacing={0.5}>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                </Stack>
+            </Grid>
+        )
+    }
+
+    if(error) {
+        return (
+            <Grid maxWidth="xl">
+                <Typography align="center" variant="h5" color={theme.palette.error.main}>
+                    Wystąpił błąd
+                </Typography>
+            </Grid>
+        )
+    }
+
+    const book = data.data;
     const title = book.title.length > 35 ? book.title.slice(0, 35) + "..." : book.title;
 
     return (
@@ -65,7 +98,7 @@ const AdminUserBorrowing = ({item: borrowing}) => {
                     <Grid item>
                         <Link to={`/book/${borrowing.bookId}`}>
                             <TypographyLink variant="h6">
-                                {title}
+                                {book.title}
                             </TypographyLink>
                         </Link>
                     </Grid>
@@ -107,15 +140,23 @@ const AdminUserBorrowing = ({item: borrowing}) => {
 }
 
 const AdminUserBorrowings = ({userId}) => {
-    const [borrowings, setBorrowings] = useState([]);
+    const { data, isLoading, error } = useQuery(`user-${userId}-borrowings`, () => axios.get(`/api/borrowing/${userId}`), {
+        refetchOnWindowFocus: false
+    });
 
-    useEffect(() => {
-        if (userId) setBorrowings(userBorrowings.filter(r => r.userId === userId));
-    }, [userId])
-
-    if(!borrowings.length) return (
-        <></>
+    if(isLoading) return (
+        <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
     )
+
+    if(error) {
+        return (
+            <Typography align="center" variant="h5" color={theme.palette.error.main}>
+                Wystąpił błąd
+            </Typography>
+        )
+    }
+
+    const borrowings = data.data.borrowings;
 
     return (
         <AdminUserAccordion
