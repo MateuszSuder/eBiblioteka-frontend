@@ -1,18 +1,16 @@
-import React, { useState } from "react";
-import {
-    Button,
-    Divider,
-    Grid,
-    Typography,
-    InputAdornment,
-    IconButton,
-} from "@mui/material";
+import React, {useState} from "react";
+import {Button, Divider, Grid, IconButton, InputAdornment, Typography,} from "@mui/material";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import theme from "../../components/theme/theme";
+import {useMutation} from "react-query";
+import axios from 'axios';
+import useSnackbar from "../../context/SnackbarProvider";
 
-import UserInfoPersonalDataInput from "./../../components/Profile/UserInfo/UserInfoPersonalData/UserInfoPersonalDataInput";
+import UserInfoPersonalDataInput
+    from "./../../components/Profile/UserInfo/UserInfoPersonalData/UserInfoPersonalDataInput";
+import useAuth from "../../context/AuthProvider";
 
 const LoginForm = () => {
     const [show, setShow] = useState(false);
@@ -20,11 +18,25 @@ const LoginForm = () => {
         email: "",
         password: "",
     });
-
     const [errors, setErrors] = useState({
         email: false,
         password: false,
     });
+    const navigate = useNavigate();
+    const { setUser } = useAuth();
+
+    const mutation = useMutation(() => axios.post('/api/auth/login', {email: personalData.email, password: personalData.password}), {
+        onError: (error) => {
+            const message = error.response.data.errors[0];
+            addSnackbar(message, "error");
+        },
+        onSuccess: (data) => {
+            setUser(data.data);
+            addSnackbar("Zalogowano", "success");
+            navigate("/");
+        }
+    });
+    const { addSnackbar } = useSnackbar();
 
     function setErrorIfEmpty(key, value) {
         if (!value) {
@@ -32,13 +44,24 @@ const LoginForm = () => {
                 ...prev,
                 ...(key in personalData ? { [key]: "Uzupełnij pole" } : {}),
             }));
+
+            return true;
         }
+
+        return false;
     }
+
     function validateIfEmpty(personalData) {
+        let invalid = false;
         for (const [key, value] of Object.entries(personalData)) {
-            setErrorIfEmpty(key, value);
+            const t = setErrorIfEmpty(key, value);
+
+            if(t) invalid = true;
         }
+
+        return invalid;
     }
+
     const validateOnChange = (e) => {
         let value = e.target.value;
         let id = e.target.id;
@@ -73,13 +96,17 @@ const LoginForm = () => {
             });
         }
     };
+
     const submit = () => {
         setErrors({
             email: false,
             password: false,
         });
-        validateIfEmpty(personalData);
-        console.log(personalData, errors);
+        const invalid = validateIfEmpty(personalData);
+
+        if(!invalid) {
+            mutation.mutate();
+        }
     };
 
     return (
@@ -135,6 +162,7 @@ const LoginForm = () => {
                         variant="contained"
                         style={{ minWidth: "50%", width: "100%" }}
                         onClick={submit}
+                        disabled={!!errors.password || !!errors.email}
                     >
                         Zaloguj
                     </Button>

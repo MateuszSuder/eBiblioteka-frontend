@@ -1,17 +1,28 @@
-import React, { useState } from "react";
-import {
-    Button,
-    Divider,
-    FormControl,
-    Grid,
-    TextField,
-    Typography,
-    FormHelperText,
-} from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import React, {useEffect, useState} from "react";
+import {Button, Divider, FormControl, FormHelperText, Grid, TextField, Typography,} from "@mui/material";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import theme from "../../../theme/theme";
 import UserInfoPersonalDataInput from "./UserInfoPersonalDataInput";
+import useAuth from "../../../../context/AuthProvider";
+import {useMutation} from "react-query";
+import axios from "axios";
+import useSnackbar from "../../../../context/SnackbarProvider";
+
 const UserInfoPersonalDataForm = ({ setShowForm }) => {
+    const { user, refetch } = useAuth();
+    const { addSnackbar } = useSnackbar();
+    const mutation = useMutation(() => axios.put(`/api/user/${user._id}`, {...personalData, name: personalData.firstName}), {
+        onError: (error) => {
+            console.log(error);
+            const message = error.response.data.errors[0];
+            addSnackbar(message, "error");
+        },
+        onSuccess: () => {
+            refetch();
+            addSnackbar("Dane pomyślnie zmienione", "success");
+        }
+    });
+
     const [personalData, setPersonalData] = useState({
         email: "",
         firstName: "",
@@ -25,6 +36,7 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
             apartmentNumber: "",
         },
     });
+
     const [errors, setErrors] = useState({
         email: false,
         firstName: false,
@@ -38,6 +50,21 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
             apartmentNumber: false,
         },
     });
+
+    useEffect(() => {
+        if(user) {
+            const {_id, isBanned, isDeleted, role, name, address: { _id: aId, ...restAddress}, ...u} = user;
+            const newPersonalData = {
+                ...u,
+                address: {...restAddress},
+                firstName: name
+            }
+            setPersonalData(prevState => ({
+                ...prevState,
+                ...newPersonalData
+            }))
+        }
+    }, [user])
 
     function setErrorIfEmpty(key, value) {
         if (!value) {
@@ -136,7 +163,7 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
             },
         });
         validateIfEmpty(personalData);
-        console.log(personalData, errors);
+        mutation.mutate();
     };
     return (
         <>

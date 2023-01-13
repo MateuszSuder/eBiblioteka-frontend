@@ -5,6 +5,8 @@ import AdminBooks from "../../components/AdminPanel/AdminBooks/AdminBooks";
 import AdminReservations from "../../components/AdminPanel/AdminReservations/AdminReservations";
 import PageWithMenu from "../../components/PageWithMenu/PageWithMenu";
 import AdminBorrowings from "../../components/AdminPanel/AdminBorrowings/AdminBorrowings";
+import useAuth from "../../context/AuthProvider";
+import {Navigate} from "react-router-dom";
 
 const subPages = [
     {name: "Użytkownicy", path: "users", icon: <People/>, component: AdminUsers},
@@ -15,6 +17,14 @@ const subPages = [
 
 
 const AdminPanel = () => {
+    const { user } = useAuth();
+
+    if(!user || (user && user.role === "USER")) {
+        return (
+            <Navigate to="/" />
+        )
+    }
+
     return (
         <PageWithMenu subPages={subPages}/>
     );

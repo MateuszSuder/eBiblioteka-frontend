@@ -1,8 +1,25 @@
-import React, { useState } from "react";
-import { Button, Grid } from "@mui/material";
+import React, {useState} from "react";
+import {Button, Grid} from "@mui/material";
 import UserInfoPasswordInput from "./UserInfoPasswordInput";
+import {useMutation} from "react-query";
+import axios from "axios";
+import useAuth from "../../../../context/AuthProvider";
+import useSnackbar from "../../../../context/SnackbarProvider";
 
 const UserInfoPasswordForm = ({ setChangePassword }) => {
+    const { user, refetch } = useAuth();
+    const { addSnackbar } = useSnackbar();
+    const mutation = useMutation(() => axios.put(`/api/user/${user._id}`, {password: password.actualPassword, newPassword: password.newPassword}), {
+        onError: (error) => {
+            console.log(error);
+            const message = error.response.data.errors[0];
+            addSnackbar(message, "error");
+        },
+        onSuccess: () => {
+            refetch();
+            addSnackbar("Dane pomyślnie zmienione", "success");
+        }
+    });
     const [password, setPassword] = useState({
         actualPassword: "",
         newPassword: "",
@@ -64,8 +81,11 @@ const UserInfoPasswordForm = ({ setChangePassword }) => {
     const submit = () => {
         const invalid = validate();
 
-        // todo integrate with backend
-        console.log(password, invalid);
+        if(!invalid) {
+            mutation.mutate();
+        } else {
+            addSnackbar("Nieprawidłowe dane", "error")
+        }
     };
 
     return (

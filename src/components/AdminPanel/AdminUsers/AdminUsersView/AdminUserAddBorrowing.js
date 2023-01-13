@@ -2,12 +2,26 @@ import React from 'react';
 import {Grid} from "@mui/material";
 import BookListWithSearch from "../../../BookListWithSearch/BookListWithSearch";
 import CustomModal from "../../../CustomModal";
+import {useMutation, useQueryClient} from "react-query";
+import axios from "axios";
+import useSnackbar from "../../../../context/SnackbarProvider";
 
 
 const AdminUserAddBorrowing = ({open, setOpen, user}) => {
+    const { addSnackbar } = useSnackbar();
+    const queryClient = useQueryClient();
+    const addBorrowingMutation = useMutation((bookId) => axios.post(`/api/borrowing/${user._id}/${bookId}`), {
+        onSuccess: async () => {
+            addSnackbar("Książka wypożyczona", "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${user._id}-borrowings`]});
+        },
+        onError: () => {
+            addSnackbar("Nie udało się utworzyć wypożyczenia", "error")
+        }
+    })
+
     const borrow = (bookId) => {
-        // todo api implementation
-        console.log(bookId);
+        addBorrowingMutation.mutate(bookId);
         setOpen(false);
     }
     return (

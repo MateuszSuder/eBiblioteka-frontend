@@ -1,12 +1,27 @@
 import React, {useState} from 'react';
-import {Grid, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Tooltip, Typography} from "@mui/material";
-import users from "../../../mock/users";
+import {
+    Grid,
+    Paper,
+    Skeleton,
+    Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableRow,
+    Tooltip,
+    Typography
+} from "@mui/material";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import NoAccountsIcon from '@mui/icons-material/NoAccounts';
 import BlockIcon from '@mui/icons-material/Block';
 import AdminUserView from "./AdminUsersView/AdminUserView";
 import RoleChip from "./RoleChip";
 import AdminUserAction from "./AdminUsersAction/AdminUserAction";
+import {useQuery} from "react-query";
+import axios from "axios";
+import theme from "../../theme/theme";
+import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 
 const AdminUsersIcon = ({Icon, tooltip, onClick}) => {
     return (
@@ -25,7 +40,7 @@ const AdminUsersTableRow = ({user}) => {
     const [action, setAction] = useState(null);
 
     const openUserModal = () => {
-        setUserId(user._id);
+        console.log("open user modal", user._id);
         setOpenUser(true);
     }
 
@@ -50,7 +65,7 @@ const AdminUsersTableRow = ({user}) => {
         <>
             <TableRow hover sx={{cursor: "pointer"}} onClick={openUserModal}>
                 <TableCell width="30%">
-                    <Typography>
+                    <Typography color={user.isDeleted ? theme.palette.error.main : theme.palette.text.primary}>
                         {user.email}
                     </Typography>
                 </TableCell>
@@ -65,15 +80,15 @@ const AdminUsersTableRow = ({user}) => {
                 <TableCell width="10%">
                     <Grid container alignItems="center">
                         <AdminUsersIcon Icon={ManageAccountsIcon} tooltip="Zmień rolę użytkownika" onClick={() => openActionModal("MODIFY")} />
-                        <AdminUsersIcon Icon={BlockIcon} tooltip="Zablokuj użytkownika" onClick={() => openActionModal("BLOCK")}/>
+                        <AdminUsersIcon Icon={user.isBanned ? CheckCircleOutlineOutlinedIcon : BlockIcon} tooltip={user.isBanned ? "Odblokuj użytkownika" : "Zablokuj użytkownika"} onClick={() => openActionModal("BLOCK")}/>
                         <AdminUsersIcon Icon={NoAccountsIcon} tooltip="Usuń użytkownika" onClick={() => openActionModal("DELETE")}/>
                     </Grid>
                 </TableCell>
             </TableRow>
-            <AdminUserView open={openUser} setOpen={setOpenUser} id={userId}/>
+            <AdminUserView open={openUser} setOpen={setOpenUser} user={user}/>
             {
                 action && (
-                    <AdminUserAction userId={userId} action={action} open={openAction} setOpen={setActionModal}/>
+                    <AdminUserAction user={user} action={action} open={openAction} setOpen={setActionModal}/>
                 )
             }
         </>
@@ -81,12 +96,38 @@ const AdminUsersTableRow = ({user}) => {
 }
 
 const AdminUsers = () => {
+    const { data, isLoading, error } = useQuery("users", () => axios.get("/api/user/all"), {
+        refetchOnWindowFocus: false
+    });
+
+    if(isLoading) {
+        return (
+            <Grid maxWidth="xl">
+                <Stack spacing={0.5}>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                </Stack>
+            </Grid>
+        )
+    }
+
+    if(error) {
+        return (
+            <Grid maxWidth="xl">
+                <Typography align="center" variant="h5" color={theme.palette.error.main}>
+                    Wystąpił błąd
+                </Typography>
+            </Grid>
+        )
+    }
+
     return (
         <Grid maxWidth="xl">
             <TableContainer component={Paper}>
                 <Table aria-label="Użytkownicy">
                     <TableBody>
-                        {users.map(user => (
+                        {data.data.users.map(user => (
                             <AdminUsersTableRow key={user._id} user={user}/>
                         ))}
                     </TableBody>
