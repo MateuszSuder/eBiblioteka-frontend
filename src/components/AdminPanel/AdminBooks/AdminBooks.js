@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import BookListWithSearch from "../../BookListWithSearch/BookListWithSearch";
 import EditIcon from "@mui/icons-material/Edit";
 import {Fab, FormControl, Grid, styled, TableCell, TextField, Tooltip, Typography} from "@mui/material";
@@ -7,6 +7,9 @@ import {Add} from "@mui/icons-material";
 import CustomModal from "../../CustomModal";
 import {useNavigate} from "react-router-dom";
 import FullWidthButton from "../../FullWidthButton";
+import {useMutation, useQueryClient} from "react-query";
+import axios from "axios";
+import useSnackbar from "../../../context/SnackbarProvider";
 
 const AbsoluteFab = styled(Fab)`
   ${({theme}) => `
@@ -26,6 +29,34 @@ const bookInputs = {
 }
 
 const AdminBookAddEdit = ({book, setModal}) => {
+    const queryClient = useQueryClient();
+    const { addSnackbar } = useSnackbar();
+    const editBookMutation = useMutation((bookId) => axios.put(`/api/book/${bookId}`, {
+        ...bookData
+    }), {
+        onSuccess: async () => {
+            addSnackbar("Książka edytowana", "success");
+            await queryClient.resetQueries({queryKey: ['books']})
+            setModal(false);
+        },
+        onError: () => {
+            addSnackbar("Błąd podczas edycji książki", "error");
+        }
+    })
+
+    const addBookMutation = useMutation(() => axios.post(`/api/book`, {
+        ...bookData
+    }), {
+        onSuccess: async () => {
+            addSnackbar("Książka dodana", "success");
+            await queryClient.resetQueries({queryKey: ['books']})
+            setModal(false);
+        },
+        onError: () => {
+            addSnackbar("Błąd podczas dodawania książki", "error");
+        }
+    })
+
     const edit = !!book;
 
     const [bookData, setBookData] = useState({
@@ -45,6 +76,21 @@ const AdminBookAddEdit = ({book, setModal}) => {
         author: false,
         publisher: false
     })
+
+    useEffect(() => {
+        if(book) {
+            const { isbn, title, category, amount, author, publisher } = book;
+            setBookData(prevState => ({
+                ...prevState,
+                isbn,
+                title,
+                category,
+                amount,
+                author,
+                publisher
+            }))
+        }
+    }, [book])
 
     const validate = () => {
         setErrors({
@@ -88,12 +134,10 @@ const AdminBookAddEdit = ({book, setModal}) => {
         if(!valid) return;
 
         if(edit) {
-            console.log("edit", bookData);
+            editBookMutation.mutate(book._id);
         } else {
-            console.log("add", bookData);
+            addBookMutation.mutate();
         }
-
-        setModal(false);
     }
 
     return (
@@ -158,13 +202,13 @@ const AdminBooks = () => {
     }
 
     const editBook = (book) => {
-        setOpenModal(true);
         setSelectedBook(book);
+        setOpenModal(true);
     }
 
     const addBook = () => {
-        setOpenModal(true);
         setSelectedBook(null);
+        setOpenModal(true);
     }
 
     return (
