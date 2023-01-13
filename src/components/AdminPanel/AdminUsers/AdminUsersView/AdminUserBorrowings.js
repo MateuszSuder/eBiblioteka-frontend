@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import AdminUserAccordion from "./AdminUserAccordion";
 import {
     Accordion,
@@ -17,8 +17,9 @@ import TypographyLink from "../../../TypographyLink";
 import theme from "../../../theme/theme";
 import FullWidthButton from "../../../FullWidthButton";
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
-import {useQuery} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import axios from "axios";
+import useSnackbar from "../../../../context/SnackbarProvider";
 
 export const BorrowingStatusChip = ({status}) => {
     switch (status) {
@@ -40,9 +41,36 @@ export const BorrowingStatusChip = ({status}) => {
 }
 
 const AdminUserBorrowing = ({item: borrowing}) => {
+    const [expanded, setExpanded] = useState(false);
+    const queryClient = useQueryClient();
+    const { addSnackbar } = useSnackbar();
+
     const { isLoading, data, error} = useQuery(`book-${borrowing.bookId}`, () => axios.get(`/api/book/${borrowing.bookId}`), {
         refetchOnWindowFocus: false
     });
+
+    const extendMutation = useMutation(() => axios.put(`/api/borrowing/${borrowing.userId}/${borrowing.bookId}/extend`), {
+        onSuccess: async (data) => {
+            addSnackbar(`Wypożyczenie przedłużone do ${new Date(data.data.expiryDate).toLocaleDateString()}`, "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${borrowing.userId}-borrowings`]});
+            await queryClient.invalidateQueries({queryKey: [`borrowings`]});
+        },
+        onError: () => {
+            addSnackbar("Nie udało się przedłużyc rezerwacji", "error")
+        }
+    })
+
+    const endMutation = useMutation(() => axios.delete(`/api/borrowing/${borrowing.userId}/${borrowing.bookId}`), {
+        onSuccess: async () => {
+            setExpanded(false);
+            addSnackbar("Wypożyczenie zakończone", "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${borrowing.userId}-borrowings`]});
+            await queryClient.invalidateQueries({queryKey: [`borrowings`]});
+        },
+        onError: () => {
+            addSnackbar("Nie udało się zakończysz przedłużenia", "error")
+        }
+    })
 
     if(isLoading) {
         return (
@@ -70,11 +98,12 @@ const AdminUserBorrowing = ({item: borrowing}) => {
     const title = book.title.length > 35 ? book.title.slice(0, 35) + "..." : book.title;
 
     return (
-        <Accordion>
+        <Accordion expanded={expanded}>
             <AccordionSummary
                 expandIcon={<ExpandMore/>}
                 aria-controls="panel1a-content"
                 id="panel1a-header"
+                onClick={() => setExpanded(!expanded)}
             >
                 <Grid container justifyContent="space-between">
                     <Grid item xs={7}>
@@ -106,7 +135,7 @@ const AdminUserBorrowing = ({item: borrowing}) => {
                         borrowing.expiryDate &&
                         <Grid item>
                             <Typography variant="caption" color={theme.palette.grey["400"]}>
-                                Wypożyczono do: {borrowing.expiryDate}
+                                Wypożyczono do: {new Date(borrowing.expiryDate).toLocaleDateString()}
                             </Typography>
                         </Grid>
                     }
@@ -124,10 +153,10 @@ const AdminUserBorrowing = ({item: borrowing}) => {
                         borrowing.status !== BORROWING_STATUS.RETURNED && (
                             <Grid item container mt={3} justifyContent="space-between" px={2}>
                                 <Grid item xs={5}>
-                                    <FullWidthButton variant="contained" color="secondary">Zakończ</FullWidthButton>
+                                    <FullWidthButton variant="contained" color="secondary" onClick={() => endMutation.mutate()}>Zakończ</FullWidthButton>
                                 </Grid>
                                 <Grid item xs={5}>
-                                    <FullWidthButton variant="contained" color="primary">Przedłuż</FullWidthButton>
+                                    <FullWidthButton variant="contained" color="primary" onClick={() => extendMutation.mutate()}>Przedłuż</FullWidthButton>
                                 </Grid>
                             </Grid>
                         )
