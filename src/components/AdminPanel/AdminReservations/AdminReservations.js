@@ -4,6 +4,8 @@ import {
     Divider,
     Grid,
     Paper,
+    Skeleton,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -12,10 +14,7 @@ import {
     Tooltip,
     Typography
 } from "@mui/material";
-import userReservations from "../../../mock/userReservations";
 import CustomTooltip from "../../CustomTooltip";
-import useFindUser from "../../../hooks/useFindUser";
-import useFindBook from "../../../hooks/useFindBook";
 import DeleteIcon from '@mui/icons-material/Delete';
 import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import CustomModal from "../../CustomModal";
@@ -25,6 +24,9 @@ import ColorAvatar from "../../ColorAvatar";
 import RoleChip from "../AdminUsers/RoleChip";
 import theme from "../../theme/theme";
 import FullWidthButton from "../../FullWidthButton";
+import {useMutation, useQuery, useQueryClient} from "react-query";
+import axios from "axios";
+import useSnackbar from "../../../context/SnackbarProvider";
 
 const AdminReservationContext = createContext({});
 
@@ -52,10 +54,22 @@ const AdminReservationModal = ({title, leftAction, leftText, rightAction, rightT
     )
 }
 
-const AdminReservationBorrowModal = ({open, setOpen, reservationId}) => {
+const AdminReservationBorrowModal = ({open, setOpen, reservation}) => {
+    const queryClient = useQueryClient();
+    const { addSnackbar } = useSnackbar();
+    const borrowReservationMutation = useMutation(() => axios.post(`/api/borrowing/${reservation.userId}/${reservation.bookId}?reservationId=${reservation._id}`), {
+        onSuccess: async () => {
+            addSnackbar("Książka wypożyczona", "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${reservation.userId}-reservations`]});
+            await queryClient.invalidateQueries({queryKey: [`reservations`]});
+        },
+        onError: () => {
+            addSnackbar("Nie udało się utworzyć wypożyczenia", "error")
+        }
+    })
 
     const borrow = () => {
-        console.log("borrow");
+        borrowReservationMutation.mutate();
         setOpen(false);
     }
 
@@ -73,10 +87,22 @@ const AdminReservationBorrowModal = ({open, setOpen, reservationId}) => {
 
 }
 
-const AdminReservationDeleteModal = ({open, setOpen, reservationId}) => {
+const AdminReservationDeleteModal = ({open, setOpen, reservation}) => {
+    const queryClient = useQueryClient();
+    const { addSnackbar } = useSnackbar();
+    const deleteReservationMutation = useMutation(() => axios.delete(`/api/reservation/${reservation._id}`), {
+        onSuccess: async () => {
+            addSnackbar("Rezerwacja usunięta", "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${reservation.userId}-reservations`]});
+            await queryClient.invalidateQueries({queryKey: [`reservations`]});
+        },
+        onError: () => {
+            addSnackbar("Nie udało się usunąć rezerwacji", "error")
+        }
+    })
 
     const deleteReservation = () => {
-        console.log("delete");
+        deleteReservationMutation.mutate();
         setOpen(false);
     }
 
@@ -143,15 +169,34 @@ const AdminReservationInfo = ({reservation, user, book}) => {
 }
 
 const AdminReservationRow = ({reservation}) => {
-    const user = useFindUser(reservation.userId);
-    const book = useFindBook(reservation.bookId);
+    const userQuery = useQuery(`user-${reservation.userId}`, () => axios.get(`/api/user?id=${reservation.userId}`));
+    const bookQuery = useQuery(`book-${reservation.bookId}`, () => axios.get(`/api/book/${reservation.bookId}`));
     const [modal, setModal] = useState(false);
     const [borrowModal, setBorrowModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
 
-    if(!user || !book) return (
-        <></>
-    )
+    if(userQuery.isLoading || bookQuery.isLoading) {
+        return (
+            <Grid maxWidth="xl">
+                <Stack spacing={0.5}>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                </Stack>
+            </Grid>
+        )
+    }
+
+    if(userQuery.error || bookQuery.error) {
+        return (
+            <Grid maxWidth="xl">
+                <Typography align="center" variant="h5" color={theme.palette.error.main}>
+                    Wystąpił błąd
+                </Typography>
+            </Grid>
+        )
+    }
+
+    const user = userQuery.data.data;
+    const book = bookQuery.data.data;
 
     return (
         <>
@@ -172,12 +217,18 @@ const AdminReservationRow = ({reservation}) => {
                 </TableCell>
                 <TableCell width="10%">
                     <Grid container justifyContent="center" onClick={e => e.stopPropagation()}>
-                        <Tooltip title={`Usuń rezerwację`}>
-                            <DeleteIcon onClick={() => setDeleteModal(true)} />
-                        </Tooltip>
-                        <Tooltip title={`Wypożycz użytkownikowi`}>
-                            <BookmarkAddedIcon onClick={() => setBorrowModal(true)} />
-                        </Tooltip>
+                    {
+                        reservation.status === "RESERVED" && (
+                            <>
+                                <Tooltip title={`Usuń rezerwację`}>
+                                    <DeleteIcon onClick={() => setDeleteModal(true)} />
+                                </Tooltip>
+                                <Tooltip title={`Wypożycz użytkownikowi`}>
+                                    <BookmarkAddedIcon onClick={() => setBorrowModal(true)} />
+                                </Tooltip>
+                            </>
+                        )
+                    }
                     </Grid>
                 </TableCell>
             </TableRow>
@@ -189,12 +240,12 @@ const AdminReservationRow = ({reservation}) => {
                 <AdminReservationBorrowModal
                     open={borrowModal}
                     setOpen={setBorrowModal}
-                    reservationId={reservation._id}
+                    reservation={reservation}
                 />
                 <AdminReservationDeleteModal
                     open={deleteModal}
                     setOpen={setDeleteModal}
-                    reservationId={reservation._id}
+                    reservation={reservation}
                 />
             </AdminReservationContext.Provider>
         </>
@@ -202,6 +253,34 @@ const AdminReservationRow = ({reservation}) => {
 }
 
 const AdminReservations = () => {
+    const { data, isLoading, error } = useQuery("reservations", () => axios.get("/api/reservation"), {
+        refetchOnWindowFocus: false
+    });
+
+    if(isLoading) {
+        return (
+            <Grid maxWidth="xl">
+                <Stack spacing={0.5}>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+                </Stack>
+            </Grid>
+        )
+    }
+
+    if(error) {
+        return (
+            <Grid maxWidth="xl">
+                <Typography align="center" variant="h5" color={theme.palette.error.main}>
+                    Wystąpił błąd
+                </Typography>
+            </Grid>
+        )
+    }
+
+    const userReservations = data.data.reservations;
+
     return (
         <TableContainer component={Paper}>
             <Table aria-label="Lista rezerwacji" sx={{ tableLayout: "fixed" }}>
