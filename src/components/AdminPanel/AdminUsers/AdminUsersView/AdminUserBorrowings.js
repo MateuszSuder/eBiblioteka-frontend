@@ -20,7 +20,7 @@ import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import {useQuery} from "react-query";
 import axios from "axios";
 
-const BorrowingStatusChip = ({status}) => {
+export const BorrowingStatusChip = ({status}) => {
     switch (status) {
         case BORROWING_STATUS.BORROWED:
             return (

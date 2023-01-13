@@ -177,21 +177,13 @@ const AdminReservationRow = ({reservation}) => {
 
     if(userQuery.isLoading || bookQuery.isLoading) {
         return (
-            <Grid maxWidth="xl">
-                <Stack spacing={0.5}>
-                    <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
-                </Stack>
-            </Grid>
+            <></>
         )
     }
 
     if(userQuery.error || bookQuery.error) {
         return (
-            <Grid maxWidth="xl">
-                <Typography align="center" variant="h5" color={theme.palette.error.main}>
-                    Wystąpił błąd
-                </Typography>
-            </Grid>
+            <></>
         )
     }
 
