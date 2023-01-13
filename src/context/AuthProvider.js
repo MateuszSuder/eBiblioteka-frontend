@@ -1,32 +1,39 @@
-import {createContext, useContext, useEffect, useMemo, useState} from "react";
+import {createContext, useContext, useEffect, useState} from "react";
 import {useQuery} from "react-query";
 import axios from "axios";
 
 const AuthContext = createContext({});
 
 export const AuthProvider = ({children}) => {
+    const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
-    const { data, isLoading } = useQuery("user", () => axios.get("/api/user"), {
+    const { data, refetch, status } = useQuery("user", () => axios.get("/api/user"), {
         retry: false,
         refetchOnWindowFocus: false
     });
 
     useEffect(() => {
-        if(data) {
-            setUser(data.data);
-        }
-    }, [isLoading])
+        console.log(loading, status, user)
 
-    const memo = useMemo(
-        () => ({
-            user,
-            setUser
-        }), [user]
-    )
+        if(status === "success") {
+            setUser(data.data);
+            setLoading(false);
+        } else if (status === "error") {
+            setLoading(false);
+        }
+    }, [data, loading, status, user])
+
+    // const memo = useMemo(
+    //     () => ({
+    //
+    //     }), [user]
+    // )
 
     return (
-        <AuthContext.Provider value={memo}>
-            { !isLoading && children }
+        <AuthContext.Provider value={{user,
+            setUser,
+            refetch}}>
+            { !loading && children }
         </AuthContext.Provider>
     )
 }
