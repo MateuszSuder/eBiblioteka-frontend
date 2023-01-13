@@ -57,7 +57,7 @@ const BookListTable = ({onSelect, children}) => {
                 <Table aria-label="Lista książek" sx={{ tableLayout: "fixed" }}>
                     <TableBody>
                         {books.map(book => (
-                            <BookTableRow key={book._id} book={book} selectBook={onSelect}>
+                            <BookTableRow key={book._id} book={book} selectBook={() => onSelect(book._id)}>
                                 {children}
                             </BookTableRow>
                         ))}
