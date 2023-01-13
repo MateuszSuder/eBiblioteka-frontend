@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import CustomModal from "../../../CustomModal";
-import useFindUser from "../../../../hooks/useFindUser";
 import {FormControl, Grid, InputLabel, MenuItem, Select, Typography} from "@mui/material";
 import ColorAvatar from "../../../ColorAvatar";
 import USER_ROLES from "../../../../enums/USER_ROLES";
 import FullWidthButton from "../../../FullWidthButton";
+import {useMutation, useQueryClient} from "react-query";
+import axios from "axios";
+import useSnackbar from "../../../../context/SnackbarProvider";
 
 const AdminUserDelete = ({user, close}) => {
     const deleteUser = () => {
@@ -51,6 +53,17 @@ const AdminUserBlock = ({user, close}) => {
 }
 
 const AdminUserModify = ({user, close}) => {
+    const { addSnackbar } = useSnackbar();
+    const queryClient = useQueryClient();
+    const roleMutation = useMutation((previousRole) => axios.put(`/api/user/${user._id}`, { role }), {
+        onSuccess: async () => {
+            addSnackbar("Zmieniono rolę użytkownika", "success");
+            await queryClient.invalidateQueries({queryKey: [`users`]});
+        },
+        onError: () => {
+            addSnackbar("Wystąpił błąd podczas zmiany roli", "error");
+        }
+    })
     const [role, setRole] = useState("");
 
     useEffect(() => {
@@ -66,8 +79,11 @@ const AdminUserModify = ({user, close}) => {
     )
 
     const saveUser = () => {
-        if(user.role !== role) console.log(`${user._id}: ${user.role} -> ${role}`);
-        else console.log("No changes");
+        if(user.role !== role) {
+            roleMutation.mutate();
+        } else {
+            addSnackbar("Rola niezmieniona", "warning");
+        }
         close();
     }
 
@@ -117,12 +133,7 @@ const AdminUserModify = ({user, close}) => {
  * @return {JSX.Element}
  * @constructor
  */
-const AdminUserAction = ({open, setOpen, userId, action}) => {
-    const user = useFindUser(userId);
-
-    if(!userId) return (
-        <></>
-    )
+const AdminUserAction = ({open, setOpen, user, action}) => {
 
     if(!user) return (
         <></>

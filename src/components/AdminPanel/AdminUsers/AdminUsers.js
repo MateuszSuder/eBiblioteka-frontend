@@ -12,7 +12,6 @@ import {
     Tooltip,
     Typography
 } from "@mui/material";
-import users from "../../../mock/users";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import NoAccountsIcon from '@mui/icons-material/NoAccounts';
 import BlockIcon from '@mui/icons-material/Block';
@@ -22,6 +21,7 @@ import AdminUserAction from "./AdminUsersAction/AdminUserAction";
 import {useQuery} from "react-query";
 import axios from "axios";
 import theme from "../../theme/theme";
+import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 
 const AdminUsersIcon = ({Icon, tooltip, onClick}) => {
     return (
@@ -80,7 +80,7 @@ const AdminUsersTableRow = ({user}) => {
                 <TableCell width="10%">
                     <Grid container alignItems="center">
                         <AdminUsersIcon Icon={ManageAccountsIcon} tooltip="Zmień rolę użytkownika" onClick={() => openActionModal("MODIFY")} />
-                        <AdminUsersIcon Icon={BlockIcon} tooltip="Zablokuj użytkownika" onClick={() => openActionModal("BLOCK")}/>
+                        <AdminUsersIcon Icon={user.isBanned ? CheckCircleOutlineOutlinedIcon : BlockIcon} tooltip={user.isBanned ? "Odblokuj użytkownika" : "Zablokuj użytkownika"} onClick={() => openActionModal("BLOCK")}/>
                         <AdminUsersIcon Icon={NoAccountsIcon} tooltip="Usuń użytkownika" onClick={() => openActionModal("DELETE")}/>
                     </Grid>
                 </TableCell>
@@ -88,7 +88,7 @@ const AdminUsersTableRow = ({user}) => {
             <AdminUserView open={openUser} setOpen={setOpenUser} user={user}/>
             {
                 action && (
-                    <AdminUserAction userId={userId} action={action} open={openAction} setOpen={setActionModal}/>
+                    <AdminUserAction user={user} action={action} open={openAction} setOpen={setActionModal}/>
                 )
             }
         </>
