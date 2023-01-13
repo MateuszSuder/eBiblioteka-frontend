@@ -19,9 +19,9 @@ const queryClient = new QueryClient()
 function App() {
     return (
         <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-                <LocalizationProvider dateAdapter={AdapterMoment}>
-                    <SnackbarProvider>
+            <SnackbarProvider>
+                <AuthProvider>
+                    <LocalizationProvider dateAdapter={AdapterMoment}>
                         <BrowserRouter>
                             <Routes>
                                 <Route element={<Layout container={true}/>}>
@@ -47,10 +47,10 @@ function App() {
                                 <Route path="/register" element={<Register/>}/>
                             </Routes>
                         </BrowserRouter>
-                    </SnackbarProvider>
-                </LocalizationProvider>
-            </AuthProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
+                    </LocalizationProvider>
+                </AuthProvider>
+            </SnackbarProvider>
+            <ReactQueryDevtools initialIsOpen={false}/>
         </QueryClientProvider>
     );
 }

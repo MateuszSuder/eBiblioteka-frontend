@@ -9,8 +9,20 @@ import axios from "axios";
 import useSnackbar from "../../../../context/SnackbarProvider";
 
 const AdminUserDelete = ({user, close}) => {
+    const { addSnackbar } = useSnackbar();
+    const queryClient = useQueryClient();
+    const deleteMutation = useMutation(() => axios.delete(`/api/user/${user._id}`), {
+        onSuccess: async () => {
+            addSnackbar("Usunięto użytkownika", "success");
+            await queryClient.invalidateQueries({queryKey: [`users`]});
+        },
+        onError: () => {
+            addSnackbar("Wystąpił błąd podczas usuwania użytkownika", "error");
+        }
+    })
+
     const deleteUser = () => {
-        console.log(`${user._id} delete`);
+        deleteMutation.mutate();
         close();
     }
 
@@ -31,8 +43,19 @@ const AdminUserDelete = ({user, close}) => {
 }
 
 const AdminUserBlock = ({user, close}) => {
+    const { addSnackbar } = useSnackbar();
+    const queryClient = useQueryClient();
+    const blockMutation = useMutation(() => axios.put(`/api/user/${user._id}/block`), {
+        onSuccess: async () => {
+            addSnackbar("Zablokowano użytkownika", "success");
+            await queryClient.invalidateQueries({queryKey: [`users`]});
+        },
+        onError: () => {
+            addSnackbar("Wystąpił błąd podczas blokowania użytkownika", "error");
+        }
+    })
     const blockUser = () => {
-        console.log(`${user._id} block`);
+        blockMutation.mutate();
         close();
     }
 
@@ -45,7 +68,7 @@ const AdminUserBlock = ({user, close}) => {
             </Grid>
             <Grid item xs={5}>
                 <FullWidthButton variant="contained" color="error" onClick={blockUser}>
-                    Zablokuj
+                    {user.isBanned ? "Odblokuj" : "Zablokuj"}
                 </FullWidthButton>
             </Grid>
         </Grid>
@@ -55,7 +78,7 @@ const AdminUserBlock = ({user, close}) => {
 const AdminUserModify = ({user, close}) => {
     const { addSnackbar } = useSnackbar();
     const queryClient = useQueryClient();
-    const roleMutation = useMutation((previousRole) => axios.put(`/api/user/${user._id}`, { role }), {
+    const roleMutation = useMutation(() => axios.put(`/api/user/${user._id}`, { role }), {
         onSuccess: async () => {
             addSnackbar("Zmieniono rolę użytkownika", "success");
             await queryClient.invalidateQueries({queryKey: [`users`]});

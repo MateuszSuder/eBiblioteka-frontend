@@ -65,7 +65,7 @@ const AdminUsersTableRow = ({user}) => {
         <>
             <TableRow hover sx={{cursor: "pointer"}} onClick={openUserModal}>
                 <TableCell width="30%">
-                    <Typography>
+                    <Typography color={user.isDeleted ? theme.palette.error.main : theme.palette.text.primary}>
                         {user.email}
                     </Typography>
                 </TableCell>
