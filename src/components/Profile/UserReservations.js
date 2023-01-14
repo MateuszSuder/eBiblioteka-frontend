@@ -193,7 +193,7 @@ const UserReservations = () => {
                     <TableRow>
                         <TableCell>Wydawnictwo</TableCell>
                         <TableCell>Tytuł</TableCell>
-                        <TableCell>Data rezerwacji</TableCell>
+                        <TableCell>Data wygaśnięcia</TableCell>
                         <TableCell align="center">Status rezerwacji</TableCell>
                         <TableCell align="center">Usuń rezerwację</TableCell>
                     </TableRow>

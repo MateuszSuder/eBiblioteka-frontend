@@ -1,156 +1,180 @@
-import React, { createContext, useState, userBorrows } from "react";
+import React, {useState} from "react";
 import {
-    TableHead,
     Grid,
     Paper,
+    Skeleton,
     Table,
     TableBody,
     TableCell,
     TableContainer,
+    TableHead,
     TableRow,
     Tooltip,
     Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import FullWidthButton from "./../FullWidthButton";
+import {useNavigate} from "react-router-dom";
 import CustomModal from "./../CustomModal";
-import useFindUser from "./../../hooks/useFindUser";
-import useFindBook from "./../../hooks/useFindBook";
 import CustomTooltip from "./../CustomTooltip";
-import DoDisturbOnOutlinedIcon from "@mui/icons-material/DoDisturbOnOutlined";
-import { BorrowingStatusChip } from "./../AdminPanel/AdminUsers/AdminUsersView/AdminUserBorrowings";
-const UserBorrowContext = createContext({});
+import {BorrowingStatusChip} from "../AdminPanel/AdminUsers/AdminUsersView/AdminUserBorrowings";
+import {useMutation, useQuery, useQueryClient} from "react-query";
+import axios from "axios";
+import theme from "../theme/theme";
+import useAuth from "../../context/AuthProvider";
+import BORROWING_STATUS from "../../enums/BORROWING_STATUS";
+import MoreTimeIcon from '@mui/icons-material/MoreTime';
+import useSnackbar from "../../context/SnackbarProvider";
+import DualButtonModalContent from "../DualButtonModalContent";
 
-const UserBorrowingsModal = ({
-    title,
-    leftAction,
-    leftText,
-    rightAction,
-    rightText,
-}) => {
-    return (
-        <Grid container justifyContent="center" gap={3}>
-            <Grid item xs={12}>
-                <Typography align="center" variant="h6">
-                    {title}
-                </Typography>
-            </Grid>
+const UserBorrowingExtendModal = ({setOpen, open, userId, bookId}) => {
+    const queryClient = useQueryClient();
+    const { addSnackbar } = useSnackbar();
 
-            <Grid item container xs={12} md={8} justifyContent="space-between">
-                <Grid item xs={5}>
-                    <FullWidthButton variant="outlined" onClick={leftAction}>
-                        {leftText}
-                    </FullWidthButton>
-                </Grid>
-                <Grid item xs={5}>
-                    <FullWidthButton variant="contained" onClick={rightAction}>
-                        {rightText}
-                    </FullWidthButton>
-                </Grid>
-            </Grid>
-        </Grid>
-    );
-};
+    const extendMutation = useMutation(() => axios.post(`/api/borrowing/${userId}/${bookId}/ask`), {
+        onSuccess: async (data) => {
+            if(data.data.extended) {
+                addSnackbar(`Wypożyczenie przedłużone`, "success");
+            } else {
+                addSnackbar(`Zapytanie o przedłużenie wysłane`, "success");
+            }
 
-const UserBorrowDeleteModal = ({ open, setOpen, BorrowId }) => {
-    const deleteBorrow = () => {
-        console.log("delete");
-        setOpen(false);
-    };
+            await queryClient.invalidateQueries({queryKey: [`user-${userId}-borrowings`]});
+            await queryClient.invalidateQueries({queryKey: [`borrowings`]});
+            setOpen(false);
+        },
+        onError: () => {
+            addSnackbar("Nie udało się przedłużyc rezerwacji", "error")
+        }
+    })
 
     return (
         <CustomModal setOpen={setOpen} open={open}>
-            <UserBorrowingsModal
-                title="Czy na pewno chcesz anulować rezerwację?"
-                rightText="Anuluj"
-                leftText="Zamknij"
+            <DualButtonModalContent
+                title="Przedłuż wypożyczenie"
+                leftText="Anuluj"
+                rightText="Przedłuż"
                 leftAction={() => setOpen(false)}
-                rightAction={deleteBorrow}
+                rightAction={() => extendMutation.mutate()}
             />
         </CustomModal>
-    );
-};
+    )
+}
 
-const UserBorrowRow = ({ Borrow }) => {
-    const user = useFindUser(Borrow.userId);
-    const book = useFindBook(Borrow.bookId);
-    const [modal, setModal] = useState(false);
-    const [deleteModal, setDeleteModal] = useState(false);
+const UserBorrowRow = ({borrowing}) => {
+    const {
+        isLoading,
+        data,
+        error
+    } = useQuery(`book-${borrowing.bookId}`, () => axios.get(`/api/book/${borrowing.bookId}`), {
+        refetchOnWindowFocus: false
+    });
+    const [extendModal, setExtendModal] = useState(false);
     const navigate = useNavigate();
-    if (!user || !book) return <></>;
+
+    if (isLoading) {
+        return (
+            <></>
+        )
+    }
+
+    if (error) {
+        return (
+            <></>
+        )
+    }
+
+    const book = data.data;
+
     const selectBook = (bookId) => {
         navigate(`/book/${bookId}`);
     };
-    return (
-        <>
-            <TableRow
-                hover
-                sx={{ cursor: "pointer" }}
-                onClick={() => selectBook(Borrow.bookId)}
-            >
-                <TableCell width="20%">
-                    <CustomTooltip content={book.category} />
-                </TableCell>
-                <TableCell width="20%">
-                    <CustomTooltip content={book.title} />
-                </TableCell>
-                <TableCell width="10%">
-                    <CustomTooltip content={Borrow.validTill} />
-                </TableCell>
-                <TableCell width="10%">
-                    <Grid container justifyContent="center">
-                        <BorrowingStatusChip status={Borrow.status} />
-                    </Grid>
-                </TableCell>
 
-                <TableCell width="10%">
-                    <Grid
-                        container
-                        justifyContent="center"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {Borrow.status === "RESERVED" && (
-                            <Tooltip title={`Anuluj rezerwację`}>
-                                <DoDisturbOnOutlinedIcon
-                                    onClick={() => setDeleteModal(true)}
+    return (
+        <TableRow
+            hover
+            sx={{cursor: "pointer"}}
+            onClick={() => selectBook(borrowing.bookId)}
+        >
+            <TableCell width="20%">
+                <CustomTooltip content={book.category}/>
+            </TableCell>
+            <TableCell width="20%">
+                <CustomTooltip content={book.title}/>
+            </TableCell>
+            <TableCell width="10%">
+                <CustomTooltip content={new Date(borrowing.expiryDate).toLocaleDateString()}/>
+            </TableCell>
+            <TableCell width="10%">
+                <Grid container justifyContent="center">
+                    <BorrowingStatusChip status={borrowing.status}/>
+                </Grid>
+            </TableCell>
+
+            <TableCell width="10%">
+                <Grid
+                    container
+                    justifyContent="center"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {
+                        borrowing.status !== BORROWING_STATUS.RETURNED && (
+                            <Tooltip title={`Przedłuż wypożyczenie`}>
+                                <MoreTimeIcon
+                                    onClick={() => setExtendModal(true)}
                                 />
                             </Tooltip>
-                        )}
-                    </Grid>
-                </TableCell>
-            </TableRow>
-            <UserBorrowContext.Provider
-                value={{
-                    modal,
-                    setModal,
-                }}
-            >
-                <UserBorrowDeleteModal
-                    open={deleteModal}
-                    setOpen={setDeleteModal}
-                    BorrowId={Borrow._id}
-                />
-            </UserBorrowContext.Provider>
-        </>
+                        )
+                    }
+                </Grid>
+            </TableCell>
+            <UserBorrowingExtendModal
+                setOpen={setExtendModal}
+                open={extendModal}
+                userId={borrowing.userId}
+                bookId={borrowing.bookId}
+            />
+        </TableRow>
     );
 };
 
 const UserBorrowings = () => {
+    const {user} = useAuth();
+    const {
+        data,
+        isLoading,
+        error
+    } = useQuery(`user-${user._id}-borrowings`, () => axios.get(`/api/borrowing/${user._id}`), {
+        refetchOnWindowFocus: false
+    });
+
+    if (isLoading) return (
+        <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+    )
+
+    if (error) {
+        return (
+            <Typography align="center" variant="h5" color={theme.palette.error.main}>
+                Wystąpił błąd
+            </Typography>
+        )
+    }
+
+    const userBorrows = data.data.borrowings;
+
     return (
         <TableContainer component={Paper}>
-            <Table aria-label="Lista rezerwacji" sx={{ tableLayout: "fixed" }}>
+            <Table aria-label="Lista rezerwacji" sx={{tableLayout: "fixed"}}>
                 <TableHead>
                     <TableRow>
                         <TableCell>Wydawnictwo</TableCell>
                         <TableCell>Tytuł</TableCell>
-                        <TableCell>Data rezerwacji</TableCell>
-                        <TableCell align="center">Status rezerwacji</TableCell>
-                        <TableCell align="center">Usuń rezerwację</TableCell>
+                        <TableCell>Data wygaśnięcia</TableCell>
+                        <TableCell align="center">Status wypożyczenia</TableCell>
+                        <TableCell align="center">Przedłuż</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {userBorrows.map((Borrow, i) => (
-                        <UserBorrowRow key={`Borrow-${i}`} Borrow={Borrow} />
+                    {userBorrows.map((borrowing, i) => (
+                        <UserBorrowRow key={`borrowing-${i}`} borrowing={borrowing}/>
                     ))}
                 </TableBody>
             </Table>

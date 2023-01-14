@@ -4,7 +4,7 @@ import FullWidthButton from "./FullWidthButton";
 
 const DualButtonModalContent = ({title, leftAction, leftText, rightAction, rightText}) => {
     return (
-        <Grid container justifyContent="center" gap={3}>
+        <Grid container justifyContent="center" gap={3} onClick={(e) => e.stopPropagation()}>
             <Grid item xs={12}>
                 <Typography align="center" variant="h6">
                     {title}

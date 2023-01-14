@@ -36,14 +36,14 @@ const AdminBorrowingExtendModal = ({setOpen, open, userId, bookId}) => {
             setOpen(false);
         },
         onError: () => {
-            addSnackbar("Nie udało się przedłużyc rezerwacji", "error")
+            addSnackbar("Nie udało się przedłużyć wypożyczenia", "error")
         }
     })
 
     return (
         <CustomModal setOpen={setOpen} open={open}>
             <DualButtonModalContent
-                title="Zakończ wypożyczenie"
+                title="Przedłuż wypożyczenie"
                 leftText="Anuluj"
                 rightText="Przedłuż"
                 leftAction={() => setOpen(false)}
@@ -85,7 +85,7 @@ const AdminBorrowingRow = ({borrowing: {userId, bookId, expiryDate, status, rene
     const userQuery = useQuery(`user-${userId}`, () => axios.get(`/api/user?id=${userId}`));
     const bookQuery = useQuery(`book-${bookId}`, () => axios.get(`/api/book/${bookId}`));
 
-    const [borrowModal, setBorrowModal] = useState(false);
+    const [extendModal, setExtendModal] = useState(false);
     const [endModal, setEndModal] = useState(false);
 
     if (userQuery.isLoading || bookQuery.isLoading) {
@@ -142,7 +142,7 @@ const AdminBorrowingRow = ({borrowing: {userId, bookId, expiryDate, status, rene
                                     <DoDisturbOnOutlinedIcon onClick={() => setEndModal(true)}/>
                                 </Tooltip>
                                 <Tooltip title={`Przedłuż wypożyczenie`}>
-                                    <MoreTimeIcon onClick={() => setBorrowModal(true)}/>
+                                    <MoreTimeIcon onClick={() => setExtendModal(true)}/>
                                 </Tooltip>
                             </>
                         }
@@ -155,8 +155,8 @@ const AdminBorrowingRow = ({borrowing: {userId, bookId, expiryDate, status, rene
                     bookId={bookId}
                 />
                 <AdminBorrowingExtendModal
-                    setOpen={setBorrowModal}
-                    open={borrowModal}
+                    setOpen={setExtendModal}
+                    open={extendModal}
                     userId={userId}
                     bookId={bookId}
                 />
