@@ -1,6 +1,6 @@
 import { People, BookmarksOutlined, Bookmarks } from "@mui/icons-material";
 import React from "react";
-import Borrowings from "../components/Profile/Borrowings";
+import UserBorrowings from "../components/Profile/UserBorrowings";
 import UserReservations from "../components/Profile/UserReservations";
 import UserInfo from "../components/Profile/UserInfo/UserInfo";
 import PageWithMenu from "../components/PageWithMenu/PageWithMenu";
@@ -21,7 +21,7 @@ const subPages = [
         name: "Wypożyczenia",
         path: "borrowings",
         icon: <Bookmarks />,
-        component: Borrowings,
+        component: UserBorrowings,
     },
 ];
 const Profile = () => {
