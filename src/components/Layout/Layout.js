@@ -1,12 +1,26 @@
 import React from 'react';
 import {AppBar, Box, Container, Grid, IconButton, Toolbar, Tooltip, Typography} from "@mui/material";
 import theme from "../theme/theme";
-import {Link, Outlet} from "react-router-dom";
+import {Link, Outlet, useNavigate} from "react-router-dom";
 import useAuth from "../../context/AuthProvider";
 import ColorAvatar from "../ColorAvatar";
+import LogoutIcon from '@mui/icons-material/Logout';
+import {useMutation, useQueryClient} from "react-query";
+import axios from "axios";
+import useSnackbar from "../../context/SnackbarProvider";
 
 const Layout = ({container = true}) => {
-    const {user} = useAuth();
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
+    const { addSnackbar } = useSnackbar();
+    const { user } = useAuth();
+    const logout = useMutation(() => axios.post("/api/auth/logout"), {
+        onSuccess: async () => {
+            addSnackbar("Pomyślnie wylogowano", "success");
+            await queryClient.invalidateQueries("user");
+            navigate("/");
+        }
+    })
 
     return (
         <>
@@ -65,13 +79,18 @@ c-21 -3 -54 -10 -74 -15 -20 -6 -39 -10 -43 -10 -3 0 -6 65 -6 144 l0 145 58
                             {
                                 user ?
                                     (
-                                        <Link to={user.role === "USER" ? "/profile" : "/admin"}>
-                                            <Tooltip title={user.role === "USER" ? "Profil użytkownika" : "Panel administratora"}>
-                                                <IconButton sx={{p: 0}}>
-                                                    <ColorAvatar text={`${user.name} ${user.lastName}`} />
-                                                </IconButton>
+                                        <Grid container alignItems="center" gap={3}>
+                                            <Link to={user.role === "USER" ? "/profile" : "/admin"}>
+                                                <Tooltip title={user.role === "USER" ? "Profil użytkownika" : "Panel administratora"}>
+                                                    <IconButton sx={{p: 0}}>
+                                                        <ColorAvatar text={`${user.name} ${user.lastName}`} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Link>
+                                            <Tooltip title="Wyloguj się" sx={{ cursor: "pointer" }}>
+                                                <LogoutIcon fontSize="large" onClick={() => logout.mutate()} />
                                             </Tooltip>
-                                        </Link>
+                                        </Grid>
                                     ) :
                                     (
                                         <Link to="/login">

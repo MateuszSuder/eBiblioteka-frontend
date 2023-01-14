@@ -19,13 +19,28 @@ export const AuthProvider = ({children}) => {
             setUser(data.data);
             setLoading(false);
         } else if (status === "error") {
-            console.log();
-            if(error.response.data.errors[0]) {
+            if(error.response?.data?.errors?.length) {
                 addSnackbar(error.response.data.errors[0], "error");
             }
+            setUser(null);
             setLoading(false);
         }
-    }, [data, loading, status, user])
+    }, [data, loading, status])
+
+    useEffect(() => {
+        if(user) {
+            if(user.isBanned) {
+                setUser(null);
+                addSnackbar("Użytkownik zbanowany", "error");
+                return;
+            }
+
+            if(user.isDeleted) {
+                setUser(null);
+                addSnackbar("Użytkownik usunięty", "error");
+            }
+        }
+    }, [user])
 
     return (
         <AuthContext.Provider value={{user,
