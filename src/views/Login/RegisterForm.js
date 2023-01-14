@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
     Button,
     Divider,
@@ -11,13 +11,12 @@ import {
     Typography,
 } from "@mui/material";
 import theme from "../../components/theme/theme";
-import {Link, useNavigate} from "react-router-dom";
-import {DatePicker} from "@mui/x-date-pickers/DatePicker";
-import UserInfoPersonalDataInput
-    from "./../../components/Profile/UserInfo/UserInfoPersonalData/UserInfoPersonalDataInput";
+import { Link, useNavigate } from "react-router-dom";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import UserInfoPersonalDataInput from "./../../components/Profile/UserInfo/UserInfoPersonalData/UserInfoPersonalDataInput";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
-import {useMutation} from "react-query";
+import { useMutation } from "react-query";
 import axios from "axios";
 import useSnackbar from "../../context/SnackbarProvider";
 
@@ -54,12 +53,19 @@ const RegisterForm = () => {
         },
     });
 
-    const mutation = useMutation(() => axios.post("/api/auth/register", {...personalData, name: personalData.firstName}), {
-        onSuccess: () => {
-            addSnackbar("Pomyślnie zarejestrowano!", "success");
-            navigate("/login");
+    const mutation = useMutation(
+        () =>
+            axios.post("/api/auth/register", {
+                ...personalData,
+                name: personalData.firstName,
+            }),
+        {
+            onSuccess: () => {
+                addSnackbar("Pomyślnie zarejestrowano!", "success");
+                navigate("/login");
+            },
         }
-    })
+    );
 
     function setErrorIfEmpty(key, value) {
         if (!value) {
@@ -98,7 +104,7 @@ const RegisterForm = () => {
             "street",
         ];
         if (fieldsWithLettersOnly.includes(id)) {
-            value = value.replace(/[^a-zA-Z]+/gi, "");
+            value = value.replace(/[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+/gi, "");
         }
 
         if (id === "postal") {
