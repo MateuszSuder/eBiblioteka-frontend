@@ -1,18 +1,10 @@
-import React, { useEffect, useState } from "react";
-import {
-    Button,
-    Divider,
-    FormControl,
-    FormHelperText,
-    Grid,
-    TextField,
-    Typography,
-} from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import React, {useEffect, useState} from "react";
+import {Button, Divider, FormControl, FormHelperText, Grid, TextField, Typography,} from "@mui/material";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import theme from "../../../theme/theme";
 import UserInfoPersonalDataInput from "./UserInfoPersonalDataInput";
 import useAuth from "../../../../context/AuthProvider";
-import { useMutation } from "react-query";
+import {useMutation} from "react-query";
 import axios from "axios";
 import useSnackbar from "../../../../context/SnackbarProvider";
 
@@ -126,7 +118,7 @@ const UserInfoPersonalDataForm = ({ setShowForm }) => {
             "street",
         ];
         if (fieldsWithLettersOnly.includes(id)) {
-            value = value.replace(/[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+/gi, "");
+            value = value.replace(/[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ ]+/gi, "");
         }
 
         if (id === "postal") {
