@@ -15,44 +15,20 @@ import {
     Typography
 } from "@mui/material";
 import CustomTooltip from "../../CustomTooltip";
-import DeleteIcon from '@mui/icons-material/Delete';
-import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
+import BookmarkAddedOutlinedIcon from '@mui/icons-material/BookmarkAddedOutlined';
 import CustomModal from "../../CustomModal";
 import ReservationStatusChip from "../ReservationStatusChip";
 import BookRow from "../../Book/BookRow";
 import ColorAvatar from "../../ColorAvatar";
 import RoleChip from "../AdminUsers/RoleChip";
 import theme from "../../theme/theme";
-import FullWidthButton from "../../FullWidthButton";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import axios from "axios";
 import useSnackbar from "../../../context/SnackbarProvider";
+import DoDisturbOnOutlinedIcon from "@mui/icons-material/DoDisturbOnOutlined";
+import DualButtonModalContent from "../../DualButtonModalContent";
 
 const AdminReservationContext = createContext({});
-
-const AdminReservationModal = ({title, leftAction, leftText, rightAction, rightText}) => {
-    return (
-        <Grid container justifyContent="center" gap={3}>
-            <Grid item xs={12}>
-                <Typography align="center" variant="h6">
-                    {title}
-                </Typography>
-            </Grid>
-            <Grid item container xs={12} md={8} justifyContent="space-between">
-                <Grid item xs={5}>
-                    <FullWidthButton variant="outlined" onClick={leftAction}>
-                        { leftText }
-                    </FullWidthButton>
-                </Grid>
-                <Grid item xs={5}>
-                    <FullWidthButton variant="contained" onClick={rightAction}>
-                        { rightText }
-                    </FullWidthButton>
-                </Grid>
-            </Grid>
-        </Grid>
-    )
-}
 
 const AdminReservationBorrowModal = ({open, setOpen, reservation}) => {
     const queryClient = useQueryClient();
@@ -75,7 +51,7 @@ const AdminReservationBorrowModal = ({open, setOpen, reservation}) => {
 
     return (
         <CustomModal setOpen={setOpen} open={open}>
-            <AdminReservationModal
+            <DualButtonModalContent
                 title="Wypożycz"
                 leftText="Anuluj"
                 rightText="Wypożycz"
@@ -108,7 +84,7 @@ const AdminReservationDeleteModal = ({open, setOpen, reservation}) => {
 
     return (
         <CustomModal setOpen={setOpen} open={open}>
-            <AdminReservationModal
+            <DualButtonModalContent
                 title="Usuń rezerwację"
                 leftText="Anuluj"
                 rightText="Usuń"
@@ -212,11 +188,11 @@ const AdminReservationRow = ({reservation}) => {
                     {
                         reservation.status === "RESERVED" && (
                             <>
-                                <Tooltip title={`Usuń rezerwację`}>
-                                    <DeleteIcon onClick={() => setDeleteModal(true)} />
+                                <Tooltip title={`Anuluj rezerwację`}>
+                                    <DoDisturbOnOutlinedIcon onClick={() => setDeleteModal(true)} />
                                 </Tooltip>
                                 <Tooltip title={`Wypożycz użytkownikowi`}>
-                                    <BookmarkAddedIcon onClick={() => setBorrowModal(true)} />
+                                    <BookmarkAddedOutlinedIcon onClick={() => setBorrowModal(true)} />
                                 </Tooltip>
                             </>
                         )

@@ -12,20 +12,81 @@ import {
     Tooltip,
     Typography
 } from "@mui/material";
-import {useQuery} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import axios from "axios";
 import theme from "../../theme/theme";
 import CustomTooltip from "../../CustomTooltip";
-import DeleteIcon from "@mui/icons-material/Delete";
-import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 import {BorrowingStatusChip} from "../AdminUsers/AdminUsersView/AdminUserBorrowings";
+import useSnackbar from "../../../context/SnackbarProvider";
+import MoreTimeIcon from '@mui/icons-material/MoreTime';
+import DoDisturbOnOutlinedIcon from "@mui/icons-material/DoDisturbOnOutlined";
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
+import CustomModal from "../../CustomModal";
+import DualButtonModalContent from "../../DualButtonModalContent";
 
-const AdminBorrowingRow = ({borrowing: {userId, bookId, expiryDate, status}}) => {
+const AdminBorrowingExtendModal = ({setOpen, open, userId, bookId}) => {
+    const queryClient = useQueryClient();
+    const { addSnackbar } = useSnackbar();
+
+    const extendMutation = useMutation(() => axios.put(`/api/borrowing/${userId}/${bookId}/extend`), {
+        onSuccess: async () => {
+            addSnackbar(`Wypożyczenie przedłużone`, "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${userId}-borrowings`]});
+            await queryClient.invalidateQueries({queryKey: [`borrowings`]});
+            setOpen(false);
+        },
+        onError: () => {
+            addSnackbar("Nie udało się przedłużyc rezerwacji", "error")
+        }
+    })
+
+    return (
+        <CustomModal setOpen={setOpen} open={open}>
+            <DualButtonModalContent
+                title="Zakończ wypożyczenie"
+                leftText="Anuluj"
+                rightText="Przedłuż"
+                leftAction={() => setOpen(false)}
+                rightAction={() => extendMutation.mutate()}
+            />
+        </CustomModal>
+    )
+}
+
+const AdminBorrowingEndModal = ({setOpen, open, userId, bookId}) => {
+    const queryClient = useQueryClient();
+    const { addSnackbar } = useSnackbar();
+    const endMutation = useMutation(() => axios.delete(`/api/borrowing/${userId}/${bookId}`), {
+        onSuccess: async () => {
+            addSnackbar("Wypożyczenie zakończone", "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${userId}-borrowings`]});
+            await queryClient.invalidateQueries({queryKey: [`borrowings`]});
+            setOpen(false);
+        },
+        onError: () => {
+            addSnackbar("Nie udało się zakończysz przedłużenia", "error")
+        }
+    })
+
+    return (
+        <CustomModal setOpen={setOpen} open={open}>
+            <DualButtonModalContent
+                title="Zakończ wypożyczenie"
+                leftText="Anuluj"
+                rightText="Zakończ"
+                leftAction={() => setOpen(false)}
+                rightAction={() => endMutation.mutate()}
+            />
+        </CustomModal>
+    )
+}
+
+const AdminBorrowingRow = ({borrowing: {userId, bookId, expiryDate, status, renewalRequest}}) => {
     const userQuery = useQuery(`user-${userId}`, () => axios.get(`/api/user?id=${userId}`));
     const bookQuery = useQuery(`book-${bookId}`, () => axios.get(`/api/book/${bookId}`));
-    const [modal, setModal] = useState(false);
+
     const [borrowModal, setBorrowModal] = useState(false);
-    const [deleteModal, setDeleteModal] = useState(false);
+    const [endModal, setEndModal] = useState(false);
 
     if (userQuery.isLoading || bookQuery.isLoading) {
         return (
@@ -44,15 +105,28 @@ const AdminBorrowingRow = ({borrowing: {userId, bookId, expiryDate, status}}) =>
 
     return (
         <>
-            <TableRow hover sx={{cursor: "pointer"}} onClick={() => setModal(true)}>
+            <TableRow hover sx={{cursor: "pointer"}}>
                 <TableCell width="20%">
-                    <CustomTooltip content={user.email}/>
+                    <Grid container>
+                        <Grid item xs={11}>
+                            <CustomTooltip content={user.email}/>
+                        </Grid>
+                        {
+                            renewalRequest && (
+                                <Grid item xs={1}>
+                                    <Tooltip title={"Prośba o przedłużenie"}>
+                                        <PriorityHighIcon color="error" />
+                                    </Tooltip>
+                                </Grid>
+                            )
+                        }
+                    </Grid>
                 </TableCell>
                 <TableCell width="20%">
                     <CustomTooltip content={book.title}/>
                 </TableCell>
                 <TableCell width="10%">
-                    <CustomTooltip content={expiryDate}/>
+                    <CustomTooltip content={new Date(expiryDate).toLocaleDateString()}/>
                 </TableCell>
                 <TableCell width="10%">
                     <Grid container justifyContent="center">
@@ -61,14 +135,31 @@ const AdminBorrowingRow = ({borrowing: {userId, bookId, expiryDate, status}}) =>
                 </TableCell>
                 <TableCell width="10%">
                     <Grid container justifyContent="center" onClick={e => e.stopPropagation()}>
-                        <Tooltip title={`Usuń rezerwację`}>
-                            <DeleteIcon onClick={() => setDeleteModal(true)}/>
-                        </Tooltip>
-                        <Tooltip title={`Wypożycz użytkownikowi`}>
-                            <BookmarkAddedIcon onClick={() => setBorrowModal(true)}/>
-                        </Tooltip>
+                        {
+                            status !== "RETURNED" &&
+                            <>
+                                <Tooltip title={`Zakończ wypożyczenie`}>
+                                    <DoDisturbOnOutlinedIcon onClick={() => setEndModal(true)}/>
+                                </Tooltip>
+                                <Tooltip title={`Przedłuż wypożyczenie`}>
+                                    <MoreTimeIcon onClick={() => setBorrowModal(true)}/>
+                                </Tooltip>
+                            </>
+                        }
                     </Grid>
                 </TableCell>
+                <AdminBorrowingEndModal
+                    setOpen={setEndModal}
+                    open={endModal}
+                    userId={userId}
+                    bookId={bookId}
+                />
+                <AdminBorrowingExtendModal
+                    setOpen={setBorrowModal}
+                    open={borrowModal}
+                    userId={userId}
+                    bookId={bookId}
+                />
             </TableRow>
         </>
     )
