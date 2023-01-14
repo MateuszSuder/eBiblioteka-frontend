@@ -1,13 +1,14 @@
-import React, { createContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {createContext, useState} from "react";
+import {useNavigate} from "react-router-dom";
 import {
-    TableHead,
     Grid,
     Paper,
+    Skeleton,
     Table,
     TableBody,
     TableCell,
     TableContainer,
+    TableHead,
     TableRow,
     Tooltip,
     Typography,
@@ -15,11 +16,14 @@ import {
 import FullWidthButton from "./../FullWidthButton";
 import CustomModal from "./../CustomModal";
 import ReservationStatusChip from "./../AdminPanel/ReservationStatusChip";
-import useFindUser from "./../../hooks/useFindUser";
-import useFindBook from "./../../hooks/useFindBook";
 import CustomTooltip from "./../CustomTooltip";
 import DoDisturbOnOutlinedIcon from "@mui/icons-material/DoDisturbOnOutlined";
-import userReservations from "./../../mock/userReservations";
+import {useMutation, useQuery, useQueryClient} from "react-query";
+import axios from "axios";
+import theme from "../theme/theme";
+import useAuth from "../../context/AuthProvider";
+import useSnackbar from "../../context/SnackbarProvider";
+
 const UserReservationContext = createContext({});
 
 const UserReservationModal = ({
@@ -52,9 +56,21 @@ const UserReservationModal = ({
     );
 };
 
-const UserReservationDeleteModal = ({ open, setOpen, reservationId }) => {
+const UserReservationDeleteModal = ({ open, setOpen, reservation }) => {
+    const queryClient = useQueryClient();
+    const { addSnackbar } = useSnackbar();
+    const deleteReservationMutation = useMutation(() => axios.delete(`/api/reservation/${reservation._id}`), {
+        onSuccess: async () => {
+            addSnackbar("Rezerwacja usunięta", "success");
+            await queryClient.invalidateQueries({queryKey: [`user-${reservation.userId}-reservations`]});
+        },
+        onError: () => {
+            addSnackbar("Nie udało się anulować rezerwacji", "error")
+        }
+    })
+
     const deleteReservation = () => {
-        console.log("delete");
+        deleteReservationMutation.mutate();
         setOpen(false);
     };
 
@@ -72,12 +88,27 @@ const UserReservationDeleteModal = ({ open, setOpen, reservationId }) => {
 };
 
 const UserReservationRow = ({ reservation }) => {
-    const user = useFindUser(reservation.userId);
-    const book = useFindBook(reservation.bookId);
+    const { isLoading, data, error} = useQuery(`book-${reservation.bookId}`, () => axios.get(`/api/book/${reservation.bookId}`), {
+        refetchOnWindowFocus: false
+    });
     const [modal, setModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState(false);
     const navigate = useNavigate();
-    if (!user || !book) return <></>;
+
+    if(isLoading) {
+        return (
+            <></>
+        )
+    }
+
+    if(error) {
+        return (
+            <></>
+        )
+    }
+
+    const book = data.data;
+
     const selectBook = (bookId) => {
         navigate(`/book/${bookId}`);
     };
@@ -95,7 +126,7 @@ const UserReservationRow = ({ reservation }) => {
                     <CustomTooltip content={book.title} />
                 </TableCell>
                 <TableCell width="10%">
-                    <CustomTooltip content={reservation.validTill} />
+                    <CustomTooltip content={new Date(reservation.validTill).toLocaleDateString()} />
                 </TableCell>
                 <TableCell width="10%">
                     <Grid container justifyContent="center">
@@ -128,7 +159,7 @@ const UserReservationRow = ({ reservation }) => {
                 <UserReservationDeleteModal
                     open={deleteModal}
                     setOpen={setDeleteModal}
-                    reservationId={reservation._id}
+                    reservation={reservation}
                 />
             </UserReservationContext.Provider>
         </>
@@ -136,6 +167,25 @@ const UserReservationRow = ({ reservation }) => {
 };
 
 const UserReservations = () => {
+    const { user } = useAuth();
+    const { data, isLoading, error } = useQuery(`user-${user._id}-reservations`, () => axios.get(`/api/reservation/${user._id}`), {
+        refetchOnWindowFocus: false
+    });
+
+    if(isLoading) return (
+        <Skeleton variant={"rounded"} animation={"wave"} height={60}/>
+    )
+
+    if(error) {
+        return (
+            <Typography align="center" variant="h5" color={theme.palette.error.main}>
+                Wystąpił błąd
+            </Typography>
+        )
+    }
+
+    const userReservations = data.data.reservations;
+
     return (
         <TableContainer component={Paper}>
             <Table aria-label="Lista rezerwacji" sx={{ tableLayout: "fixed" }}>
